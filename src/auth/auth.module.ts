@@ -8,6 +8,7 @@ import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { Token, TokenSchema } from 'src/tokens/schemas/token.schema.ts';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { JwtStrategy } from './strategys/jwt.strategy';
+import { SendgridModule } from 'src/sendgrid/sendgrid.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtStrategy } from './strategys/jwt.strategy';
       signOptions: { expiresIn: process.env.ACCESS_TOKEN_TIME },
     }),
     PassportModule,
+    SendgridModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
