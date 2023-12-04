@@ -72,4 +72,41 @@ export class UsersService {
       message: 'The confirmation email has been sent again.',
     };
   }
+
+  async getCurrentUser(
+    userId: Types.ObjectId,
+  ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const user = await this.UserModel.findById(userId);
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'User not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: user,
+    };
+  }
 }
