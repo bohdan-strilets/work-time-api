@@ -306,4 +306,37 @@ export class UsersService {
       message: 'Password has been successfully updated.',
     };
   }
+
+  async deleteProfile(userId: Types.ObjectId): Promise<ResponseType | undefined> {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const user = await this.UserModel.findById(userId);
+    await this.UserModel.findByIdAndDelete(userId);
+    const tokens = await this.TokenModel.findOne({ owner: userId });
+    await this.TokenModel.findByIdAndDelete(tokens._id);
+
+    const avatarPublicId = this.cloudinaryService.getPublicId(user.avatarUrl);
+
+    if (!avatarPublicId.split('/').includes('default')) {
+      await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
+      await this.cloudinaryService.deleteFolder(`${avatarPath}${userId}`);
+    }
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'Your account and all your data has been successfully deleted.',
+    };
+  }
 }

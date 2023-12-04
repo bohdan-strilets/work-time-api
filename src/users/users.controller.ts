@@ -13,6 +13,7 @@ import {
   Patch,
   UseInterceptors,
   UploadedFile,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
@@ -117,6 +118,14 @@ export class UsersController {
   ): Promise<ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.chnangePassword(changePasswordDto, _id);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('delete-profile')
+  async deleteProfile(@Req() req: AuthRequest): Promise<ResponseType | undefined> {
+    const { _id } = req.user;
+    const data = await this.usersService.deleteProfile(_id);
     return data;
   }
 }
