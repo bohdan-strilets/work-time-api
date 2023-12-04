@@ -5,6 +5,7 @@ import { TokensModule } from './tokens/tokens.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { SendgridModule } from './sendgrid/sendgrid.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SendgridModule } from './sendgrid/sendgrid.module';
     UsersModule,
     AuthModule,
     SendgridModule,
+    CloudinaryModule,
   ],
 })
 export class AppModule {}
