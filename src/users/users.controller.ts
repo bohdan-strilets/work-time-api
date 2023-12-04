@@ -20,6 +20,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserDocument } from './schemas/user.schema';
 import { AuthRequest } from './types/auth-request.type';
 import { ChangeProfileDto } from './dto/change-profile.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -77,6 +78,15 @@ export class UsersController {
   @Post('request-reset-password')
   async requestResetPassword(@Body() emailDto: EmailDto): Promise<ResponseType | undefined> {
     const data = await this.usersService.requestResetPassword(emailDto);
+    return data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<ResponseType | undefined> {
+    const data = await this.usersService.resetPassword(resetPasswordDto);
     return data;
   }
 }

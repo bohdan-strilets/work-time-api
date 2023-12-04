@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { v4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
 import { Token, TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
@@ -10,6 +11,7 @@ import { TokensService } from 'src/tokens/tokens.service';
 import { ResponseType } from './types/response.type';
 import { EmailDto } from './dto/email.dto';
 import { ChangeProfileDto } from './dto/change-profile.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -209,6 +211,32 @@ export class UsersService {
       code: HttpStatus.OK,
       success: true,
       message: 'An email with a link to reset your password has been sent to your email address.',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType | undefined> {
+    const password = bcrypt.hashSync(resetPasswordDto.password, bcrypt.genSaltSync(10));
+    const user = await this.UserModel.findOne({ email: resetPasswordDto.email });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'User not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.UserModel.findByIdAndUpdate(user._id, { password });
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'The password has been successfully changed.',
     };
   }
 }
