@@ -14,8 +14,10 @@ import {
   UseInterceptors,
   UploadedFile,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { UsersService } from './users.service';
 import { ResponseType } from './types/response.type';
 import { CLIENT_URL } from 'src/utilities/constants';
@@ -27,6 +29,8 @@ import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { imageValidator } from './pipes/image-validator.pipe';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { TokensType } from 'src/tokens/types/tokens.type';
+import { REFRESH_TOKEN } from 'src/utilities/constants';
 
 @Controller('users')
 export class UsersController {
@@ -126,6 +130,17 @@ export class UsersController {
   async deleteProfile(@Req() req: AuthRequest): Promise<ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.deleteProfile(_id);
+    return data;
+  }
+
+  @Get('refresh-user')
+  async refreshUser(
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ResponseType<TokensType> | undefined> {
+    const refreshToken = req.cookies[REFRESH_TOKEN];
+    const data = await this.usersService.refreshUser(refreshToken);
+    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken);
     return data;
   }
 }

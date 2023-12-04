@@ -7,6 +7,7 @@ import { CreateTokenDto } from './dto/create-token.dto';
 import { TokensType } from './types/tokens.type';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { PayloadType } from './types/payload.type';
+import TokenType from './enums/token-type.enum';
 
 @Injectable()
 export class TokensService {
@@ -50,14 +51,14 @@ export class TokensService {
     return tokens;
   }
 
-  checkToken(token: string, type: 'access' | 'refresh'): PayloadType | null {
+  checkToken(token: string, type: TokenType): PayloadType | null {
     let payload: PayloadType;
 
-    if (type === 'access') {
+    if (type === TokenType.Access) {
       payload = this.jwtService.verify(token, {
         secret: process.env.ACCESS_TOKEN_KEY,
       });
-    } else if (type === 'refresh') {
+    } else if (type === TokenType.Refresh) {
       payload = this.jwtService.verify(token, {
         secret: process.env.REFRESH_TOKEN_KEY,
       });

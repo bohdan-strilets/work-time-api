@@ -11,6 +11,7 @@ import { ResponseType } from './types/response.type';
 import { LoginDto } from './dto/login.dto';
 import { AMOUNT_SALT } from 'src/utilities/constants';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
+import TokenType from 'src/tokens/enums/token-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -52,8 +53,8 @@ export class AuthService {
 
     const payload = this.tokensService.createPayload(newUser);
     const tokens = await this.tokensService.createTokens(payload);
-     const email = this.sendgridService.confirmEmail(newUser.email, newUser.activationToken);
-     await this.sendgridService.sendEmail(email);
+    const email = this.sendgridService.confirmEmail(newUser.email, newUser.activationToken);
+    await this.sendgridService.sendEmail(email);
 
     return {
       status: 'success',
@@ -107,7 +108,7 @@ export class AuthService {
       );
     }
 
-    const userData = this.tokensService.checkToken(refreshToken, 'refresh');
+    const userData = this.tokensService.checkToken(refreshToken, TokenType.Refresh);
     const tokenFromDb = await this.tokensService.findTokenFromDb(userData._id);
 
     if (!userData || !tokenFromDb) {

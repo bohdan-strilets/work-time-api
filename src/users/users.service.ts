@@ -17,6 +17,8 @@ import { avatarPath } from 'src/utilities/cloudinary-paths';
 import { FileType } from 'src/cloudinary/enums/file-type.enum';
 import { AMOUNT_SALT } from 'src/utilities/constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { TokensType } from 'src/tokens/types/tokens.type';
+import TokenType from 'src/tokens/enums/token-type.enum';
 
 @Injectable()
 export class UsersService {
@@ -337,6 +339,46 @@ export class UsersService {
       code: HttpStatus.OK,
       success: true,
       message: 'Your account and all your data has been successfully deleted.',
+    };
+  }
+
+  async refreshUser(refreshToken: string): Promise<ResponseType<TokensType> | undefined> {
+    if (!refreshToken) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const userData = this.tokenService.checkToken(refreshToken, TokenType.Refresh);
+    const tokenFromDb = await this.tokenService.findTokenFromDb(userData._id);
+
+    if (!userData || !tokenFromDb) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const user = await this.UserModel.findById(userData._id);
+    const payload = this.tokenService.createPayload(user);
+    const tokens = await this.tokenService.createTokens(payload);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      tokens,
     };
   }
 }
