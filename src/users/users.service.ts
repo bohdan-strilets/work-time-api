@@ -150,4 +150,39 @@ export class UsersService {
       data: updatedUser,
     };
   }
+
+  async changeEmail(userId: Types.ObjectId, emailDto: EmailDto): Promise<ResponseType | undefined> {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const activationToken = v4();
+    const email = this.sendgridService.confirmEmail(emailDto.email, activationToken);
+    await this.sendgridService.sendEmail(email);
+
+    await this.UserModel.findByIdAndUpdate(
+      userId,
+      {
+        email: emailDto.email,
+        activationToken,
+        isActivated: false,
+      },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'The email address has been successfully changed, now you need to re-verify it.',
+    };
+  }
 }

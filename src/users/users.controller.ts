@@ -10,6 +10,7 @@ import {
   UseGuards,
   Req,
   Put,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ResponseType } from './types/response.type';
@@ -58,6 +59,17 @@ export class UsersController {
   ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.changeProfile(_id, changeProfileDto);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-email')
+  async changeEmail(
+    @Body() emailDto: EmailDto,
+    @Req() req: AuthRequest,
+  ): Promise<ResponseType | undefined> {
+    const { _id } = req.user;
+    const data = await this.usersService.changeEmail(_id, emailDto);
     return data;
   }
 }
