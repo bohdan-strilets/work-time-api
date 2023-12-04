@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { CompanyInfo, CompanyInfoDocument } from './company-info.schema';
+import Gender from '../enums/gender.enum';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -21,14 +22,14 @@ export class User {
   @Prop({ default: new Date() })
   dateBirth: Date;
 
-  @Prop({ default: 'other', enum: ['man', 'woman', 'other'] })
-  gender: 'man' | 'woman' | 'other';
+  @Prop({ default: Gender.Other, enum: Gender })
+  gender: Gender;
 
   @Prop({ default: null })
   description: string;
 
   @Prop({ type: CompanyInfo, default: {} })
-  location: CompanyInfoDocument;
+  companyInfo: CompanyInfoDocument;
 
   @Prop({ required: true })
   avatarUrl: string;

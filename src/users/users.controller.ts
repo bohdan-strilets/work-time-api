@@ -9,6 +9,7 @@ import {
   Post,
   UseGuards,
   Req,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ResponseType } from './types/response.type';
@@ -17,6 +18,7 @@ import { EmailDto } from './dto/email.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserDocument } from './schemas/user.schema';
 import { AuthRequest } from './types/auth-request.type';
+import { ChangeProfileDto } from './dto/change-profile.dto';
 
 @Controller('users')
 export class UsersController {
@@ -45,6 +47,17 @@ export class UsersController {
   ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.getCurrentUser(_id);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('change-profile')
+  async changeProfile(
+    @Body() changeProfileDto: ChangeProfileDto,
+    @Req() req: AuthRequest,
+  ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
+    const { _id } = req.user;
+    const data = await this.usersService.changeProfile(_id, changeProfileDto);
     return data;
   }
 }

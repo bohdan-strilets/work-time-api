@@ -9,6 +9,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { TokensService } from 'src/tokens/tokens.service';
 import { ResponseType } from './types/response.type';
 import { EmailDto } from './dto/email.dto';
+import { ChangeProfileDto } from './dto/change-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -107,6 +108,46 @@ export class UsersService {
       code: HttpStatus.OK,
       success: true,
       data: user,
+    };
+  }
+
+  async changeProfile(
+    userId: Types.ObjectId,
+    changeProfileDto: ChangeProfileDto,
+  ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const updatedUser = await this.UserModel.findByIdAndUpdate(userId, changeProfileDto, {
+      new: true,
+    });
+
+    if (!updatedUser) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'User not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: updatedUser,
     };
   }
 }
