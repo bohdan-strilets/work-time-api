@@ -72,4 +72,11 @@ export class UsersController {
     const data = await this.usersService.changeEmail(_id, emailDto);
     return data;
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('request-reset-password')
+  async requestResetPassword(@Body() emailDto: EmailDto): Promise<ResponseType | undefined> {
+    const data = await this.usersService.requestResetPassword(emailDto);
+    return data;
+  }
 }

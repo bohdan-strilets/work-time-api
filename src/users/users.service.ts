@@ -185,4 +185,30 @@ export class UsersService {
       message: 'The email address has been successfully changed, now you need to re-verify it.',
     };
   }
+
+  async requestResetPassword(emailDto: EmailDto): Promise<ResponseType | undefined> {
+    const user = await this.UserModel.findOne({ email: emailDto.email });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'User not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const email = this.sendgridService.resetPassword(user.email, user.firstName);
+    await this.sendgridService.sendEmail(email);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'An email with a link to reset your password has been sent to your email address.',
+    };
+  }
 }
