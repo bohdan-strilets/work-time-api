@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Day, DayDocument } from './schemas/day.schema';
@@ -16,6 +16,29 @@ export class CalendarsService {
       code: HttpStatus.OK,
       success: true,
       data: days,
+    };
+  }
+
+  async getOneDayInfo(dayId: string): Promise<ResponseType<DayDocument> | undefined> {
+    const day = await this.DayModel.findOne({ _id: dayId });
+
+    if (!day) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Day with current ID not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: day,
     };
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Param } from '@nestjs/common';
 import { CalendarsService } from './calendars.service';
 import { ResponseType } from './types/response.type';
 import { DayDocument } from './schemas/day.schema';
@@ -11,9 +11,17 @@ export class CalendarsController {
   constructor(private readonly calendarsService: CalendarsService) {}
 
   @Get('all-days')
-  async getAllPosts(@Req() req: AuthRequest): Promise<ResponseType<DayDocument[]> | undefined> {
+  async getAllDaysInfo(@Req() req: AuthRequest): Promise<ResponseType<DayDocument[]> | undefined> {
     const { _id } = req.user;
     const data = await this.calendarsService.getAllDaysInfo(_id);
+    return data;
+  }
+
+  @Get('one-day/:dayId')
+  async getOneDayInfo(
+    @Param('dayId') dayId: string,
+  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+    const data = await this.calendarsService.getOneDayInfo(dayId);
     return data;
   }
 }
