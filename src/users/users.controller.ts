@@ -25,6 +25,7 @@ import { AuthRequest } from './types/auth-request.type';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { imageValidator } from './pipes/image-validator.pipe';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -105,6 +106,17 @@ export class UsersController {
   ): Promise<ResponseType<UserDocument> | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.uploadAvatar(file, _id);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-password')
+  async chnangePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Req() req: AuthRequest,
+  ): Promise<ResponseType | undefined> {
+    const { _id } = req.user;
+    const data = await this.usersService.chnangePassword(changePasswordDto, _id);
     return data;
   }
 }

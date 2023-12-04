@@ -15,6 +15,8 @@ import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { avatarPath } from 'src/utilities/cloudinary-paths';
 import { FileType } from 'src/cloudinary/enums/file-type.enum';
+import { AMOUNT_SALT } from 'src/utilities/constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -218,7 +220,7 @@ export class UsersService {
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType | undefined> {
-    const password = bcrypt.hashSync(resetPasswordDto.password, bcrypt.genSaltSync(10));
+    const password = bcrypt.hashSync(resetPasswordDto.password, bcrypt.genSaltSync(AMOUNT_SALT));
     const user = await this.UserModel.findOne({ email: resetPasswordDto.email });
 
     if (!user) {
@@ -269,6 +271,39 @@ export class UsersService {
       code: HttpStatus.OK,
       success: true,
       data: updatedUser,
+    };
+  }
+
+  async chnangePassword(
+    changePasswordDto: ChangePasswordDto,
+    userId: Types.ObjectId,
+  ): Promise<ResponseType | undefined> {
+    const user = await this.UserModel.findById(userId);
+    const checkPassword = bcrypt.compareSync(changePasswordDto.password, user.password);
+
+    if (!user || !checkPassword) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const password = bcrypt.hashSync(
+      changePasswordDto.newPassword,
+      bcrypt.genSaltSync(AMOUNT_SALT),
+    );
+    await this.UserModel.findByIdAndUpdate(userId, { password });
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'Password has been successfully updated.',
     };
   }
 }
