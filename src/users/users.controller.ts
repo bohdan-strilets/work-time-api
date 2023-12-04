@@ -11,7 +11,10 @@ import {
   Req,
   Put,
   Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { ResponseType } from './types/response.type';
 import { CLIENT_URL } from 'src/utilities/constants';
@@ -21,6 +24,7 @@ import { UserDocument } from './schemas/user.schema';
 import { AuthRequest } from './types/auth-request.type';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { imageValidator } from './pipes/image-validator.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -87,6 +91,20 @@ export class UsersController {
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<ResponseType | undefined> {
     const data = await this.usersService.resetPassword(resetPasswordDto);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('avatar', { dest: './public' }))
+  async uploadAvatar(
+    @UploadedFile(imageValidator)
+    file: Express.Multer.File,
+    @Req() req: AuthRequest,
+  ): Promise<ResponseType<UserDocument> | undefined> {
+    const { _id } = req.user;
+    const data = await this.usersService.uploadAvatar(file, _id);
     return data;
   }
 }

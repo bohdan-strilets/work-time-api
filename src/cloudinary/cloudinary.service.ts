@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { v2 } from 'cloudinary';
+import { FileType } from './enums/file-type.enum';
 
 @Injectable()
 export class CloudinaryService {
@@ -15,7 +16,7 @@ export class CloudinaryService {
 
   async uploadFile(
     file: Express.Multer.File,
-    type: 'image' | 'video',
+    type: FileType,
     path: string,
   ): Promise<string | null> {
     const uploadOptions = { folder: path, resource_type: type };
@@ -33,7 +34,7 @@ export class CloudinaryService {
     return publicId;
   }
 
-  async deleteFile(path: string, type: 'image' | 'video'): Promise<void> {
+  async deleteFile(path: string, type: FileType): Promise<void> {
     const deleteOptions = { resource_type: type, invalidate: true };
     const publicId = this.getPublicId(path);
     const result = await this.cloudinary.uploader.destroy(publicId, deleteOptions);

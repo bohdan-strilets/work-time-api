@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { v4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import * as fs from 'fs';
 import { User, UserDocument } from './schemas/user.schema';
 import { Token, TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
@@ -12,6 +13,8 @@ import { ResponseType } from './types/response.type';
 import { EmailDto } from './dto/email.dto';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { avatarPath } from 'src/utilities/cloudinary-paths';
+import { FileType } from 'src/cloudinary/enums/file-type.enum';
 
 @Injectable()
 export class UsersService {
@@ -237,6 +240,35 @@ export class UsersService {
       code: HttpStatus.OK,
       success: true,
       message: 'The password has been successfully changed.',
+    };
+  }
+
+  async uploadAvatar(
+    file: Express.Multer.File,
+    userId: Types.ObjectId,
+  ): Promise<ResponseType<UserDocument> | undefined> {
+    const user = await this.UserModel.findById(userId);
+    const publicId = this.cloudinaryService.getPublicId(user.avatarUrl);
+
+    if (!publicId.split('/').includes('default')) {
+      await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
+    }
+
+    const path = `${avatarPath}${userId}`;
+    const result = await this.cloudinaryService.uploadFile(file, FileType.Image, path);
+    fs.unlinkSync(file.path);
+
+    const updatedUser = await this.UserModel.findByIdAndUpdate(
+      userId,
+      { avatarUrl: result },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: updatedUser,
     };
   }
 }
