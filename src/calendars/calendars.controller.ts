@@ -1,9 +1,10 @@
-import { Controller, Get, UseGuards, Req, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Param, Post, Body } from '@nestjs/common';
 import { CalendarsService } from './calendars.service';
 import { ResponseType } from './types/response.type';
 import { DayDocument } from './schemas/day.schema';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthRequest } from 'src/users/types/auth-request.type';
+import { CreateDayDto } from './dto/create-day.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('calendars')
@@ -22,6 +23,16 @@ export class CalendarsController {
     @Param('dayId') dayId: string,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
     const data = await this.calendarsService.getOneDayInfo(dayId);
+    return data;
+  }
+
+  @Post('create-day')
+  async createDay(
+    @Body() createDayDto: CreateDayDto,
+    @Req() req: AuthRequest,
+  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+    const { _id } = req.user;
+    const data = await this.calendarsService.createDay(createDayDto, _id);
     return data;
   }
 }

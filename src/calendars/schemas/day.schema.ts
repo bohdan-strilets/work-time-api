@@ -10,7 +10,8 @@ export class Day {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
 
-  data: { [key: string]: DayInfoDocument };
+  @Prop({ type: Map, of: mongoose.Schema.Types.Mixed, default: new Map() })
+  data: Map<string, DayInfoDocument>;
 
   @Prop()
   createdAt: Date;
