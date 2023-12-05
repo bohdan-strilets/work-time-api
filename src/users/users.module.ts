@@ -7,12 +7,14 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { User, UserSchema } from './schemas/user.schema';
 import { Token, TokenSchema } from 'src/tokens/schemas/token.schema.ts';
+import { Day, DaySchema } from 'src/calendars/schemas/day.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Token.name, schema: TokenSchema },
+      { name: Day.name, schema: DaySchema },
     ]),
     SendgridModule,
     CloudinaryModule,

@@ -19,12 +19,14 @@ import { AMOUNT_SALT } from 'src/utilities/constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokensType } from 'src/tokens/types/tokens.type';
 import TokenType from 'src/tokens/enums/token-type.enum';
+import { Day, DayDocument } from 'src/calendars/schemas/day.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     @InjectModel(Token.name) private TokenModel: Model<TokenDocument>,
+    @InjectModel(Day.name) private DayModel: Model<DayDocument>,
     private readonly sendgridService: SendgridService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly tokenService: TokensService,
@@ -326,6 +328,7 @@ export class UsersService {
     await this.UserModel.findByIdAndDelete(userId);
     const tokens = await this.TokenModel.findOne({ owner: userId });
     await this.TokenModel.findByIdAndDelete(tokens._id);
+    await this.DayModel.deleteMany({ owner: user._id });
 
     const avatarPublicId = this.cloudinaryService.getPublicId(user.avatarUrl);
 
