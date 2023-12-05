@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login.dto';
 import { AMOUNT_SALT } from 'src/utilities/constants';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import TokenType from 'src/tokens/enums/token-type.enum';
+import { UserFromGoogle } from './types/user-from-google.type';
 
 @Injectable()
 export class AuthService {
@@ -129,6 +130,34 @@ export class AuthService {
       status: 'success',
       code: HttpStatus.OK,
       success: true,
+    };
+  }
+
+  async googleLogin(
+    user: UserFromGoogle,
+  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
+    if (!user) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'User not found.',
+        },
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    const userFromDB = await this.UserModel.findOne({ email: user.email });
+    const payload = this.tokensService.createPayload(userFromDB);
+    const tokens = await this.tokensService.createTokens(payload);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      tokens,
+      data: userFromDB,
     };
   }
 }

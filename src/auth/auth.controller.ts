@@ -18,6 +18,9 @@ import { ResponseType } from './types/response.type';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { REFRESH_TOKEN } from 'src/utilities/constants';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { AuthRequest } from 'src/users/types/auth-request.type';
+import { UserFromGoogle } from './types/user-from-google.type';
 
 @Controller('auth')
 export class AuthController {
@@ -54,5 +57,19 @@ export class AuthController {
     const data = await this.authService.logout(refreshToken);
     res.clearCookie(REFRESH_TOKEN);
     return data;
+  }
+
+  @UseGuards(GoogleOauthGuard)
+  @Get('google')
+  async googleAuth() {
+    return;
+  }
+
+  @UseGuards(GoogleOauthGuard)
+  @Get('google/callback')
+  async googleAuthRedirect(
+    @Req() req: AuthRequest<UserFromGoogle>,
+  ): Promise<ResponseType<Token, UserDocument> | ResponseType | undefined> {
+    return await this.authService.googleLogin(req.user);
   }
 }

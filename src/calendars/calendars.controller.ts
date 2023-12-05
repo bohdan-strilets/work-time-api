@@ -5,6 +5,7 @@ import { DayDocument } from './schemas/day.schema';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthRequest } from 'src/users/types/auth-request.type';
 import { DayDto } from './dto/day.dto';
+import { PayloadType } from 'src/tokens/types/payload.type';
 
 @UseGuards(JwtAuthGuard)
 @Controller('calendars')
@@ -12,7 +13,9 @@ export class CalendarsController {
   constructor(private readonly calendarsService: CalendarsService) {}
 
   @Get('all-days')
-  async getAllDaysInfo(@Req() req: AuthRequest): Promise<ResponseType<DayDocument[]> | undefined> {
+  async getAllDaysInfo(
+    @Req() req: AuthRequest<PayloadType>,
+  ): Promise<ResponseType<DayDocument[]> | undefined> {
     const { _id } = req.user;
     const data = await this.calendarsService.getAllDaysInfo(_id);
     return data;
@@ -29,7 +32,7 @@ export class CalendarsController {
   @Post('create-day')
   async createDay(
     @Body() createDayDto: DayDto,
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.calendarsService.createDay(createDayDto, _id);

@@ -16,7 +16,7 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ default: null })
   password: string;
 
   @Prop({ default: new Date() })
@@ -31,10 +31,10 @@ export class User {
   @Prop({ type: CompanyInfo, default: {} })
   companyInfo: CompanyInfoDocument;
 
-  @Prop({ required: true })
+  @Prop({ default: null })
   avatarUrl: string;
 
-  @Prop({ required: true })
+  @Prop({ default: null })
   activationToken: string;
 
   @Prop({ default: false })

@@ -31,6 +31,7 @@ import { imageValidator } from './pipes/image-validator.pipe';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokensType } from 'src/tokens/types/tokens.type';
 import { REFRESH_TOKEN } from 'src/utilities/constants';
+import { PayloadType } from 'src/tokens/types/payload.type';
 
 @Controller('users')
 export class UsersController {
@@ -55,7 +56,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('current-user')
   async getCurrentUser(
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.getCurrentUser(_id);
@@ -66,7 +67,7 @@ export class UsersController {
   @Put('change-profile')
   async changeProfile(
     @Body() changeProfileDto: ChangeProfileDto,
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.changeProfile(_id, changeProfileDto);
@@ -77,7 +78,7 @@ export class UsersController {
   @Patch('change-email')
   async changeEmail(
     @Body() emailDto: EmailDto,
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.changeEmail(_id, emailDto);
@@ -107,7 +108,7 @@ export class UsersController {
   async uploadAvatar(
     @UploadedFile(imageValidator)
     file: Express.Multer.File,
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType<UserDocument> | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.uploadAvatar(file, _id);
@@ -118,7 +119,7 @@ export class UsersController {
   @Patch('change-password')
   async chnangePassword(
     @Body() changePasswordDto: ChangePasswordDto,
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.chnangePassword(changePasswordDto, _id);
@@ -127,7 +128,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('delete-profile')
-  async deleteProfile(@Req() req: AuthRequest): Promise<ResponseType | undefined> {
+  async deleteProfile(@Req() req: AuthRequest<PayloadType>): Promise<ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.deleteProfile(_id);
     return data;
@@ -135,7 +136,7 @@ export class UsersController {
 
   @Get('refresh-user')
   async refreshUser(
-    @Req() req: AuthRequest,
+    @Req() req: AuthRequest<PayloadType>,
     @Res({ passthrough: true }) res: Response,
   ): Promise<ResponseType<TokensType> | undefined> {
     const refreshToken = req.cookies[REFRESH_TOKEN];
