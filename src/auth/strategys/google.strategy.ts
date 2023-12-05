@@ -4,6 +4,7 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { CALLBACK_URL } from 'src/utilities/constants';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -11,7 +12,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://localhost:5050/api/v1/auth/google/callback',
+      callbackURL: CALLBACK_URL,
       scope: ['profile', 'email'],
     });
   }

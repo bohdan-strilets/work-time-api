@@ -9,3 +9,5 @@ export const CLIENT_URL = 'http://localhost:3000/work-time';
 export const AMOUNT_SALT = 10;
 
 export const REFRESH_TOKEN = 'refresh-token';
+
+export const CALLBACK_URL = 'http://localhost:5050/api/v1/auth/google/callback';
