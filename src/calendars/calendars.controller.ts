@@ -1,10 +1,10 @@
-import { Controller, Get, UseGuards, Req, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Param, Post, Body, Patch } from '@nestjs/common';
 import { CalendarsService } from './calendars.service';
 import { ResponseType } from './types/response.type';
 import { DayDocument } from './schemas/day.schema';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthRequest } from 'src/users/types/auth-request.type';
-import { CreateDayDto } from './dto/create-day.dto';
+import { DayDto } from './dto/day.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('calendars')
@@ -28,11 +28,21 @@ export class CalendarsController {
 
   @Post('create-day')
   async createDay(
-    @Body() createDayDto: CreateDayDto,
+    @Body() createDayDto: DayDto,
     @Req() req: AuthRequest,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.calendarsService.createDay(createDayDto, _id);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('update-day/:dayId')
+  async updateDay(
+    @Body() updateDayDto: DayDto,
+    @Param('dayId') dayId: string,
+  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+    const data = await this.calendarsService.updateDay(updateDayDto, dayId);
     return data;
   }
 }

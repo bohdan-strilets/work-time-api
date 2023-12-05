@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Day, DayDocument } from './schemas/day.schema';
 import { ResponseType } from './types/response.type';
-import { CreateDayDto } from './dto/create-day.dto';
+import { DayDto } from './dto/day.dto';
 
 @Injectable()
 export class CalendarsService {
@@ -44,7 +44,7 @@ export class CalendarsService {
   }
 
   async createDay(
-    createDayDto: CreateDayDto,
+    createDayDto: DayDto,
     userId: Types.ObjectId,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
     if (!createDayDto) {
@@ -67,6 +67,32 @@ export class CalendarsService {
       code: HttpStatus.CREATED,
       success: true,
       data: newDay,
+    };
+  }
+
+  async updateDay(
+    updateDayDto: DayDto,
+    dayId: string,
+  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+    if (!updateDayDto) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.BAD_REQUEST,
+          success: false,
+          message: 'Check correct entered data.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const updatedPost = await this.DayModel.findByIdAndUpdate(dayId, updateDayDto, { new: true });
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: updatedPost,
     };
   }
 }
