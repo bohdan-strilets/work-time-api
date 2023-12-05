@@ -95,4 +95,27 @@ export class CalendarsService {
       data: updatedPost,
     };
   }
+
+  async deleteDay(dayId: string): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+    if (!dayId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.NOT_FOUND,
+          success: false,
+          message: 'Day with current ID not found.',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.DayModel.findByIdAndDelete(dayId);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'Information about the selected day has been successfully deleted.',
+    };
+  }
 }

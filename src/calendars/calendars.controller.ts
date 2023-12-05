@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req, Param, Post, Body, Patch } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Param, Post, Body, Patch, Delete } from '@nestjs/common';
 import { CalendarsService } from './calendars.service';
 import { ResponseType } from './types/response.type';
 import { DayDocument } from './schemas/day.schema';
@@ -36,13 +36,20 @@ export class CalendarsController {
     return data;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('update-day/:dayId')
   async updateDay(
     @Body() updateDayDto: DayDto,
     @Param('dayId') dayId: string,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
     const data = await this.calendarsService.updateDay(updateDayDto, dayId);
+    return data;
+  }
+
+  @Delete('delete-day/:dayId')
+  async deletePost(
+    @Param('dayId') dayId: string,
+  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+    const data = await this.calendarsService.deleteDay(dayId);
     return data;
   }
 }
