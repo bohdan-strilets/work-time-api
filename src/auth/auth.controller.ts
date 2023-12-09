@@ -18,6 +18,7 @@ import { ResponseType } from './types/response.type';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { REFRESH_TOKEN } from 'src/utilities/constants';
+import { TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 
 @Controller('auth')
 export class AuthController {
@@ -57,8 +58,12 @@ export class AuthController {
   }
 
   @Post('google-auth')
-  async googleAuth2(@Body('token') token: string): Promise<ResponseType<UserDocument> | undefined> {
+  async googleAuth2(
+    @Body('token') token: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
     const data = await this.authService.googleAuth(token);
+    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken);
     return data;
   }
 }

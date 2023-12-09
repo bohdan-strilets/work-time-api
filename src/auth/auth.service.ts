@@ -133,7 +133,9 @@ export class AuthService {
     };
   }
 
-  async googleAuth(token: string): Promise<ResponseType<UserDocument> | undefined> {
+  async googleAuth(
+    token: string,
+  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
 
     const ticket = await client.verifyIdToken({
@@ -141,30 +143,36 @@ export class AuthService {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-    const payload = ticket.getPayload();
-    const email = payload.email;
+    const googlePayload = ticket.getPayload();
+    const email = googlePayload.email;
     const userFromDB = await this.UserModel.findOne({ email });
 
     if (userFromDB) {
+      const payload = this.tokensService.createPayload(userFromDB);
+      const tokens = await this.tokensService.createTokens(payload);
       return {
         status: 'success',
         code: HttpStatus.OK,
         success: true,
+        tokens,
         data: userFromDB,
       };
     } else {
       const newUser = {
-        firstName: payload.given_name,
-        lastName: payload.family_name,
+        firstName: googlePayload.given_name,
+        lastName: googlePayload.family_name,
         email,
-        avatarUrl: payload.picture,
-        isActivated: payload.email_verified,
+        avatarUrl: googlePayload.picture,
+        isActivated: googlePayload.email_verified,
       };
       const createdUser = await this.UserModel.create({ ...newUser });
+      const payload = this.tokensService.createPayload(createdUser);
+      const tokens = await this.tokensService.createTokens(payload);
       return {
         status: 'success',
         code: HttpStatus.CREATED,
         success: true,
+        tokens,
         data: createdUser,
       };
     }
