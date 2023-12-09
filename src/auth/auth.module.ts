@@ -9,7 +9,6 @@ import { Token, TokenSchema } from 'src/tokens/schemas/token.schema.ts';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { JwtStrategy } from './strategys/jwt.strategy';
 import { SendgridModule } from 'src/sendgrid/sendgrid.module';
-import { GoogleStrategy } from './strategys/google.strategy';
 
 @Module({
   imports: [
@@ -26,6 +25,6 @@ import { GoogleStrategy } from './strategys/google.strategy';
     SendgridModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

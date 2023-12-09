@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import { Token, TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 import { TokensService } from 'src/tokens/tokens.service';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
@@ -12,7 +13,6 @@ import { LoginDto } from './dto/login.dto';
 import { AMOUNT_SALT } from 'src/utilities/constants';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import TokenType from 'src/tokens/enums/token-type.enum';
-import { UserFromGoogle } from './types/user-from-google.type';
 
 @Injectable()
 export class AuthService {
@@ -133,31 +133,40 @@ export class AuthService {
     };
   }
 
-  async googleLogin(
-    user: UserFromGoogle,
-  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
-    if (!user) {
-      throw new HttpException(
-        {
-          status: 'error',
-          code: HttpStatus.NOT_FOUND,
-          success: false,
-          message: 'User not found.',
-        },
-        HttpStatus.CONFLICT,
-      );
+  async googleAuth(token: string): Promise<ResponseType<UserDocument> | undefined> {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const userFromDB = await this.UserModel.findOne({ email });
+
+    if (userFromDB) {
+      return {
+        status: 'success',
+        code: HttpStatus.OK,
+        success: true,
+        data: userFromDB,
+      };
+    } else {
+      const newUser = {
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+        email,
+        avatarUrl: payload.picture,
+        isActivated: payload.email_verified,
+      };
+      const createdUser = await this.UserModel.create({ ...newUser });
+      return {
+        status: 'success',
+        code: HttpStatus.CREATED,
+        success: true,
+        data: createdUser,
+      };
     }
-
-    const userFromDB = await this.UserModel.findOne({ email: user.email });
-    const payload = this.tokensService.createPayload(userFromDB);
-    const tokens = await this.tokensService.createTokens(payload);
-
-    return {
-      status: 'success',
-      code: HttpStatus.OK,
-      success: true,
-      tokens,
-      data: userFromDB,
-    };
   }
 }
