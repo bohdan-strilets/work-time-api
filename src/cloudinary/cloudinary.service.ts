@@ -46,4 +46,9 @@ export class CloudinaryService {
   async deleteFolder(folderPath: string): Promise<void> {
     await this.cloudinary.api.delete_folder(folderPath);
   }
+
+  isGoogleAvatarUrl(url: string): boolean {
+    const googleAvatarPathRegex = /\/a\/[A-Za-z0-9_-]+=s\d{2,}-c/;
+    return googleAvatarPathRegex.test(url);
+  }
 }

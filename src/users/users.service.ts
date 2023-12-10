@@ -255,9 +255,12 @@ export class UsersService {
   ): Promise<ResponseType<UserDocument> | undefined> {
     const user = await this.UserModel.findById(userId);
     const publicId = this.cloudinaryService.getPublicId(user.avatarUrl);
+    const isGoogleAvatar = this.cloudinaryService.isGoogleAvatarUrl(user.avatarUrl);
 
-    if (!publicId.split('/').includes('default')) {
-      await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
+    if (isGoogleAvatar) {
+      if (!publicId.split('/').includes('default')) {
+        await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
+      }
     }
 
     const path = `${avatarPath}${userId}`;
