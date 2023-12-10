@@ -286,18 +286,21 @@ export class UsersService {
     userId: Types.ObjectId,
   ): Promise<ResponseType | undefined> {
     const user = await this.UserModel.findById(userId);
-    const checkPassword = bcrypt.compareSync(changePasswordDto.password, user.password);
 
-    if (!user || !checkPassword) {
-      throw new HttpException(
-        {
-          status: 'error',
-          code: HttpStatus.UNAUTHORIZED,
-          success: false,
-          message: 'User not unauthorized.',
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+    if (changePasswordDto.password) {
+      const checkPassword = bcrypt.compareSync(changePasswordDto.password, user.password);
+
+      if (!user || !checkPassword) {
+        throw new HttpException(
+          {
+            status: 'error',
+            code: HttpStatus.UNAUTHORIZED,
+            success: false,
+            message: 'User not unauthorized.',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
     }
 
     const password = bcrypt.hashSync(
