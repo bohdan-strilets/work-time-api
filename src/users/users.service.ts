@@ -257,7 +257,7 @@ export class UsersService {
     const publicId = this.cloudinaryService.getPublicId(user.avatarUrl);
     const isGoogleAvatar = this.cloudinaryService.isGoogleAvatarUrl(user.avatarUrl);
 
-    if (isGoogleAvatar) {
+    if (!isGoogleAvatar) {
       if (!publicId.split('/').includes('default')) {
         await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
       }
@@ -331,6 +331,7 @@ export class UsersService {
     }
 
     const user = await this.UserModel.findById(userId);
+    const isGoogleAvatar = this.cloudinaryService.isGoogleAvatarUrl(user.avatarUrl);
     await this.UserModel.findByIdAndDelete(userId);
     const tokens = await this.TokenModel.findOne({ owner: userId });
     await this.TokenModel.findByIdAndDelete(tokens._id);
@@ -338,9 +339,11 @@ export class UsersService {
 
     const avatarPublicId = this.cloudinaryService.getPublicId(user.avatarUrl);
 
-    if (!avatarPublicId.split('/').includes('default')) {
-      await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
-      await this.cloudinaryService.deleteFolder(`${avatarPath}${userId}`);
+    if (!isGoogleAvatar) {
+      if (!avatarPublicId.split('/').includes('default')) {
+        await this.cloudinaryService.deleteFile(user.avatarUrl, FileType.Image);
+        await this.cloudinaryService.deleteFolder(`${avatarPath}${userId}`);
+      }
     }
 
     return {
