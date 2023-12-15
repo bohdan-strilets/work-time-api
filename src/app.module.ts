@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { SendgridModule } from './sendgrid/sendgrid.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CalendarsModule } from './calendars/calendars.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CalendarsModule } from './calendars/calendars.module';
     SendgridModule,
     CloudinaryModule,
     CalendarsModule,
+    StatisticsModule,
   ],
 })
 export class AppModule {}
