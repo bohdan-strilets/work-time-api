@@ -9,12 +9,14 @@ import { Token, TokenSchema } from 'src/tokens/schemas/token.schema.ts';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { JwtStrategy } from './strategys/jwt.strategy';
 import { SendgridModule } from 'src/sendgrid/sendgrid.module';
+import { Statistics, StatisticsSchema } from 'src/statistics/schemas/statistics.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Token.name, schema: TokenSchema },
+      { name: Statistics.name, schema: StatisticsSchema },
     ]),
     TokensModule,
     JwtModule.register({

@@ -13,12 +13,14 @@ import { LoginDto } from './dto/login.dto';
 import { AMOUNT_SALT } from 'src/utilities/constants';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import TokenType from 'src/tokens/enums/token-type.enum';
+import { Statistics, StatisticsDocument } from 'src/statistics/schemas/statistics.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     @InjectModel(Token.name) private TokenModel: Model<TokenDocument>,
+    @InjectModel(Statistics.name) private StatisticsModel: Model<StatisticsDocument>,
     private readonly tokensService: TokensService,
     private readonly sendgridService: SendgridService,
   ) {}
@@ -56,6 +58,7 @@ export class AuthService {
     const tokens = await this.tokensService.createTokens(payload);
     const email = this.sendgridService.confirmEmail(newUser.email, newUser.activationToken);
     await this.sendgridService.sendEmail(email);
+    await this.StatisticsModel.create({ owner: newUser._id });
 
     return {
       status: 'success',
@@ -168,6 +171,7 @@ export class AuthService {
       const createdUser = await this.UserModel.create({ ...newUser });
       const payload = this.tokensService.createPayload(createdUser);
       const tokens = await this.tokensService.createTokens(payload);
+      await this.StatisticsModel.create({ owner: createdUser._id });
       return {
         status: 'success',
         code: HttpStatus.CREATED,
