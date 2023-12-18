@@ -51,8 +51,10 @@ export class CalendarsController {
   @Delete('delete-day/:dayId')
   async deletePost(
     @Param('dayId') dayId: string,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
-    const data = await this.calendarsService.deleteDay(dayId);
+    const { _id } = req.user;
+    const data = await this.calendarsService.deleteDay(dayId, _id);
     return data;
   }
 }
