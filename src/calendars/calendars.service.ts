@@ -110,7 +110,7 @@ export class CalendarsService {
     const month = this.statisticksService.getMonth(date);
     const year = this.statisticksService.getYear(date);
     const dto = updateDayDto.data[date];
-    const oldDto = oldInformationAboutDay.data.get(date);
+    const oldDto = { ...oldInformationAboutDay.data.get(date), grossEarnings: 0, netEarnings: 0 };
 
     if (
       oldDto.status !== dto.status ||

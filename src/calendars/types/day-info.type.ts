@@ -7,4 +7,6 @@ export type DayInfoType = {
   time: string;
   workShiftNumber: WorkShiftNumber;
   additionalHours: boolean;
+  grossEarnings: number;
+  netEarnings: number;
 };

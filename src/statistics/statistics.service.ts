@@ -5,6 +5,7 @@ import { Statistics, StatisticsDocument } from './schemas/statistics.schema';
 import Status from 'src/calendars/enums/status.enum';
 import WorkShiftNumber from 'src/calendars/enums/work-shift-number.enum';
 import TypeOperation from './enums/type-operation.enum';
+import { DayInfoType } from 'src/calendars/types/day-info.type';
 
 @Injectable()
 export class StatisticsService {
@@ -45,38 +46,75 @@ export class StatisticsService {
   }
 
   getMonth(date: string): number {
-    const month = Number(date.slice(3, 5));
+    const arr = date.split('-');
+    const month = Number(arr[1]);
     return month;
   }
 
   getYear(date: string): string {
-    const year = date.slice(6, date.length);
+    const arr = date.split('-');
+    const year = arr[arr.length - 1];
     return year;
   }
 
+  calculateNightHours(time: string, numberHoursWorked: number): number {
+    const [startStr, endStr] = time.split('-');
+    const startTime = parseInt(startStr.split(':')[0], 10);
+    const endTime = parseInt(endStr.split(':')[0], 10);
+    const midnight = 24;
+    const startNightTime = 22;
+
+    if (startTime < startNightTime && numberHoursWorked < 4) {
+      return 0;
+    }
+    if (endTime < midnight && startTime < midnight && numberHoursWorked < 4) {
+      return midnight - startNightTime;
+    }
+    return midnight - startNightTime + endTime;
+  }
+
   async changeStatisticsForDaysAndHours(params: {
-    dataByClient: any;
+    dataByClient: DayInfoType;
     month: number;
     year: string;
     userId: Types.ObjectId;
     type: TypeOperation;
   }) {
     const { dataByClient, month, year, userId, type } = params;
+    const {
+      grossEarnings,
+      netEarnings,
+      numberHoursWorked,
+      status,
+      workShiftNumber,
+      additionalHours,
+      time,
+    } = dataByClient;
     const statistics = await this.StatisticsModel.findOne({ owner: userId });
     const checkTypeForNumberHoursWorked =
-      type === TypeOperation.Increment
-        ? dataByClient.numberHoursWorked
-        : -dataByClient.numberHoursWorked;
+      type === TypeOperation.Increment ? numberHoursWorked : -numberHoursWorked;
     const checkTypeForValueWithOne = type === TypeOperation.Increment ? 1 : -1;
     const checkTypeForValueWithTwelve = type === TypeOperation.Increment ? 12 : -12;
+    const checkTypeForValueGross =
+      type === TypeOperation.Increment ? grossEarnings : -grossEarnings;
+    const checkTypeForValueNet = type === TypeOperation.Increment ? netEarnings : -netEarnings;
+    const totalTax = grossEarnings - netEarnings;
+    const checkTypeForTax = type === TypeOperation.Increment ? totalTax : -totalTax;
+    const nightHours = this.calculateNightHours(time, numberHoursWorked) ?? 0;
+    const checkTypeForNightHours = type == TypeOperation.Increment ? nightHours : -nightHours;
 
-    if (dataByClient.status === Status.work) {
+    if (status === Status.work) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberWorkingDays': checkTypeForValueWithOne,
           'generalStatistics.totalDays': checkTypeForValueWithOne,
           'generalStatistics.numberWorkingHours': checkTypeForNumberHoursWorked,
           'generalStatistics.totalHours': checkTypeForNumberHoursWorked,
+          'generalStatistics.grossAmountMoneyForWorkingDays': checkTypeForValueGross,
+          'generalStatistics.nettoAmountMoneyForWorkingDays': checkTypeForValueNet,
+          'generalStatistics.totalMoneyEarnedGross': checkTypeForValueGross,
+          'generalStatistics.totalMoneyEarnedNetto': checkTypeForValueNet,
+          'generalStatistics.totalTaxPaid': checkTypeForTax,
         },
       });
 
@@ -108,14 +146,50 @@ export class StatisticsService {
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
       });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'grossAmountMoneyForWorkingDays',
+        defaultValue: checkTypeForValueGross,
+        value: checkTypeForValueGross,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'nettoAmountMoneyForWorkingDays',
+        defaultValue: checkTypeForValueNet,
+        value: checkTypeForValueNet,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalMoneyEarnedGross',
+        defaultValue: checkTypeForValueGross,
+        value: checkTypeForValueGross,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalMoneyEarnedNetto',
+        defaultValue: checkTypeForValueNet,
+        value: checkTypeForValueNet,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalTaxPaid',
+        defaultValue: checkTypeForTax,
+        value: checkTypeForTax,
+      });
     }
-    if (dataByClient.status === Status.work && dataByClient.additionalHours) {
+    if (status === Status.work && additionalHours) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberAdditionalWorkingDays': checkTypeForValueWithOne,
           'generalStatistics.numberAdditionalWorkingHours': checkTypeForNumberHoursWorked,
         },
       });
+
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -131,7 +205,7 @@ export class StatisticsService {
         value: checkTypeForNumberHoursWorked,
       });
     }
-    if (dataByClient.status === Status.dayOff) {
+    if (status === Status.dayOff) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberDaysOff': checkTypeForValueWithOne,
@@ -153,15 +227,21 @@ export class StatisticsService {
         value: checkTypeForValueWithTwelve,
       });
     }
-    if (dataByClient.status === Status.vacation) {
+    if (status === Status.vacation) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberVacationDays': checkTypeForValueWithOne,
           'generalStatistics.totalDays': checkTypeForValueWithOne,
           'generalStatistics.numberVacationHours': checkTypeForNumberHoursWorked,
           'generalStatistics.totalHours': checkTypeForNumberHoursWorked,
+          'generalStatistics.grossAmountMoneyForVacationDays': checkTypeForValueGross,
+          'generalStatistics.nettoAmountMoneyForVacationDays': checkTypeForValueNet,
+          'generalStatistics.totalMoneyEarnedGross': checkTypeForValueGross,
+          'generalStatistics.totalMoneyEarnedNetto': checkTypeForValueNet,
+          'generalStatistics.totalTaxPaid': checkTypeForTax,
         },
       });
+
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -190,14 +270,54 @@ export class StatisticsService {
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
       });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'grossAmountMoneyForVacationDays',
+        defaultValue: checkTypeForValueGross,
+        value: checkTypeForValueGross,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'nettoAmountMoneyForVacationDays',
+        defaultValue: checkTypeForValueNet,
+        value: checkTypeForValueNet,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalMoneyEarnedGross',
+        defaultValue: checkTypeForValueGross,
+        value: checkTypeForValueGross,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalMoneyEarnedNetto',
+        defaultValue: checkTypeForValueNet,
+        value: checkTypeForValueNet,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalTaxPaid',
+        defaultValue: checkTypeForTax,
+        value: checkTypeForTax,
+      });
     }
-    if (dataByClient.status === Status.sickLeave) {
+    if (status === Status.sickLeave) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberSickDays': checkTypeForValueWithOne,
           'generalStatistics.totalDays': checkTypeForValueWithOne,
           'generalStatistics.numberSickHours': checkTypeForNumberHoursWorked,
           'generalStatistics.totalHours': checkTypeForNumberHoursWorked,
+          'generalStatistics.grossAmountMoneyForSickDays': checkTypeForValueGross,
+          'generalStatistics.nettoAmountMoneyForSickDays': checkTypeForValueNet,
+          'generalStatistics.totalMoneyEarnedGross': checkTypeForValueGross,
+          'generalStatistics.totalMoneyEarnedNetto': checkTypeForValueNet,
+          'generalStatistics.totalTaxPaid': checkTypeForTax,
         },
       });
       await this.findAndUpdateStatisticksField(userId, {
@@ -228,8 +348,43 @@ export class StatisticsService {
         defaultValue: checkTypeForValueWithTwelve,
         value: checkTypeForValueWithTwelve,
       });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'grossAmountMoneyForSickDays',
+        defaultValue: checkTypeForValueGross,
+        value: checkTypeForValueGross,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'nettoAmountMoneyForSickDays',
+        defaultValue: checkTypeForValueNet,
+        value: checkTypeForValueNet,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalMoneyEarnedGross',
+        defaultValue: checkTypeForValueGross,
+        value: checkTypeForValueGross,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalMoneyEarnedNetto',
+        defaultValue: checkTypeForValueNet,
+        value: checkTypeForValueNet,
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'totalTaxPaid',
+        defaultValue: checkTypeForTax,
+        value: checkTypeForTax,
+      });
     }
-    if (dataByClient.workShiftNumber === WorkShiftNumber.Shift1) {
+    if (workShiftNumber === WorkShiftNumber.Shift1) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberFirstShifts': checkTypeForValueWithOne,
@@ -243,7 +398,7 @@ export class StatisticsService {
         value: checkTypeForValueWithOne,
       });
     }
-    if (dataByClient.workShiftNumber === WorkShiftNumber.Shift2) {
+    if (workShiftNumber === WorkShiftNumber.Shift2) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
         $inc: {
           'generalStatistics.numberSecondShifts': checkTypeForValueWithOne,
@@ -255,6 +410,20 @@ export class StatisticsService {
         fieldNameFromDb: 'numberSecondShifts',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+      });
+    }
+    if (workShiftNumber === WorkShiftNumber.Shift2 && nightHours > 0) {
+      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
+        $inc: {
+          'generalStatistics.numberNightHours': checkTypeForNightHours,
+        },
+      });
+      await this.findAndUpdateStatisticksField(userId, {
+        month,
+        year,
+        fieldNameFromDb: 'numberNightHours',
+        defaultValue: checkTypeForNightHours,
+        value: checkTypeForNightHours,
       });
     }
   }
