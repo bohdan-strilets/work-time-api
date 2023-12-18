@@ -90,6 +90,7 @@ export class CalendarsService {
   async updateDay(
     updateDayDto: DayDto,
     dayId: string,
+    userId: Types.ObjectId,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
     if (!updateDayDto) {
       throw new HttpException(
@@ -103,27 +104,34 @@ export class CalendarsService {
       );
     }
 
-    // const oldInformationAboutDay = await this.DayModel.findById(dayId);
+    const oldInformationAboutDay = await this.DayModel.findById(dayId);
     const updatedPost = await this.DayModel.findByIdAndUpdate(dayId, updateDayDto, { new: true });
-    // const date = Object.keys(updateDayDto.data)[0];
-    // const month = this.statisticksService.getMonth(date);
-    // const year = this.statisticksService.getYear(date);
-    // const statistics = await this.StatisticsModel.findOne({ owner: updatedPost.owner });
-    // const dto = updateDayDto.data[date];
-    // const oldDto = oldInformationAboutDay.data.get(date);
+    const date = Object.keys(updateDayDto.data)[0];
+    const month = this.statisticksService.getMonth(date);
+    const year = this.statisticksService.getYear(date);
+    const dto = updateDayDto.data[date];
+    const oldDto = oldInformationAboutDay.data.get(date);
 
-    // if (oldDto.status !== dto.status) {
-    //   if (oldDto.status === Status.work) {
-    //     await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-    //       $inc: {
-    //         'generalStatistics.numberWorkingDays': -1,
-    //         'generalStatistics.totalDays': -1,
-    //         'generalStatistics.numberWorkingHours': -oldDto.numberHoursWorked,
-    //         'generalStatistics.totalHours': -oldDto.numberHoursWorked,
-    //       },
-    //     });
-    //   }
-    // }
+    if (
+      oldDto.status !== dto.status ||
+      oldDto.workShiftNumber !== dto.workShiftNumber ||
+      oldDto.additionalHours !== dto.additionalHours
+    ) {
+      await this.statisticksService.changeStatisticsForDaysAndHours({
+        dataByClient: oldDto,
+        month,
+        year,
+        userId,
+        type: TypeOperation.Decrement,
+      });
+      await this.statisticksService.changeStatisticsForDaysAndHours({
+        dataByClient: dto,
+        month,
+        year,
+        userId,
+        type: TypeOperation.Increment,
+      });
+    }
 
     return {
       status: 'success',

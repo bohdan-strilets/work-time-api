@@ -43,8 +43,10 @@ export class CalendarsController {
   async updateDay(
     @Body() updateDayDto: DayDto,
     @Param('dayId') dayId: string,
+    @Req() req: AuthRequest<PayloadType>,
   ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
-    const data = await this.calendarsService.updateDay(updateDayDto, dayId);
+    const { _id } = req.user;
+    const data = await this.calendarsService.updateDay(updateDayDto, dayId, _id);
     return data;
   }
 
