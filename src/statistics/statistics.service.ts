@@ -6,6 +6,7 @@ import Status from 'src/calendars/enums/status.enum';
 import WorkShiftNumber from 'src/calendars/enums/work-shift-number.enum';
 import TypeOperation from './enums/type-operation.enum';
 import { DayInfoType } from 'src/calendars/types/day-info.type';
+import { MonthType } from './types/month.type';
 
 @Injectable()
 export class StatisticsService {
@@ -19,25 +20,34 @@ export class StatisticsService {
       fieldNameFromDb: string;
       defaultValue: number;
       value: number;
+      dayId: Types.ObjectId;
+      type: TypeOperation;
     },
   ) {
     const FIELD_NAME_DB = 'statisticsByMonths';
-    const { month, year, fieldNameFromDb, defaultValue, value } = params;
+    const { month, year, fieldNameFromDb, defaultValue, value, dayId, type } = params;
     const statistics = await this.StatisticsModel.findOne({ owner: userId });
     const monthStats = statistics.statisticsByMonths;
 
-    const current = monthStats[fieldNameFromDb].find(
-      (item: { month: number; year: string; value: number }) =>
-        item.month === month && item.year === year,
+    const selectedMonth: MonthType = monthStats[fieldNameFromDb].find(
+      (item: MonthType) => item.month === month && item.year === year,
     );
 
-    const updatedData = [...monthStats[fieldNameFromDb]];
+    const updatedData: MonthType[] = [...monthStats[fieldNameFromDb]];
     const index = updatedData.findIndex(item => item.month === month && item.year === year);
 
     if (index !== -1) {
-      updatedData[index] = { ...current, value: current.value + value };
+      if (type === TypeOperation.Increment) {
+        updatedData[index] = {
+          ...selectedMonth,
+          value: [...selectedMonth.value, { dayId, value }],
+        };
+      } else {
+        const filteredValue = selectedMonth.value.filter(item => !item.dayId.equals(dayId));
+        updatedData[index] = { ...selectedMonth, value: filteredValue };
+      }
     } else {
-      updatedData.push({ month, year, value: defaultValue });
+      updatedData.push({ month, year, value: [{ dayId, value: defaultValue }] });
     }
 
     const updateField = `${FIELD_NAME_DB}.${fieldNameFromDb}`;
@@ -79,8 +89,9 @@ export class StatisticsService {
     year: string;
     userId: Types.ObjectId;
     type: TypeOperation;
+    dayId: Types.ObjectId;
   }) {
-    const { dataByClient, month, year, userId, type } = params;
+    const { dataByClient, month, year, userId, type, dayId } = params;
     const {
       grossEarnings,
       netEarnings,
@@ -124,6 +135,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberWorkingDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -131,6 +144,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberWorkingHours',
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -138,6 +153,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -145,6 +162,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalHours',
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -152,6 +171,8 @@ export class StatisticsService {
         fieldNameFromDb: 'grossAmountMoneyForWorkingDays',
         defaultValue: checkTypeForValueGross,
         value: checkTypeForValueGross,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -159,6 +180,8 @@ export class StatisticsService {
         fieldNameFromDb: 'nettoAmountMoneyForWorkingDays',
         defaultValue: checkTypeForValueNet,
         value: checkTypeForValueNet,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -166,6 +189,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalMoneyEarnedGross',
         defaultValue: checkTypeForValueGross,
         value: checkTypeForValueGross,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -173,6 +198,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalMoneyEarnedNetto',
         defaultValue: checkTypeForValueNet,
         value: checkTypeForValueNet,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -180,6 +207,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalTaxPaid',
         defaultValue: checkTypeForTax,
         value: checkTypeForTax,
+        dayId,
+        type,
       });
     }
     if (status === Status.work && additionalHours) {
@@ -196,6 +225,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberAdditionalWorkingDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -203,6 +234,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberAdditionalWorkingHours',
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
+        dayId,
+        type,
       });
     }
     if (status === Status.dayOff) {
@@ -218,6 +251,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberDaysOff',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -225,6 +260,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberFreeHours',
         defaultValue: checkTypeForValueWithTwelve,
         value: checkTypeForValueWithTwelve,
+        dayId,
+        type,
       });
     }
     if (status === Status.vacation) {
@@ -248,6 +285,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberVacationDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -255,6 +294,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -262,6 +303,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberVacationHours',
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -269,6 +312,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalHours',
         defaultValue: checkTypeForNumberHoursWorked,
         value: checkTypeForNumberHoursWorked,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -276,6 +321,8 @@ export class StatisticsService {
         fieldNameFromDb: 'grossAmountMoneyForVacationDays',
         defaultValue: checkTypeForValueGross,
         value: checkTypeForValueGross,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -283,6 +330,8 @@ export class StatisticsService {
         fieldNameFromDb: 'nettoAmountMoneyForVacationDays',
         defaultValue: checkTypeForValueNet,
         value: checkTypeForValueNet,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -290,6 +339,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalMoneyEarnedGross',
         defaultValue: checkTypeForValueGross,
         value: checkTypeForValueGross,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -297,6 +348,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalMoneyEarnedNetto',
         defaultValue: checkTypeForValueNet,
         value: checkTypeForValueNet,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -304,6 +357,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalTaxPaid',
         defaultValue: checkTypeForTax,
         value: checkTypeForTax,
+        dayId,
+        type,
       });
     }
     if (status === Status.sickLeave) {
@@ -326,6 +381,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberSickDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -333,6 +390,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalDays',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -340,6 +399,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberSickHours',
         defaultValue: checkTypeForValueWithTwelve,
         value: checkTypeForValueWithTwelve,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -347,6 +408,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalHours',
         defaultValue: checkTypeForValueWithTwelve,
         value: checkTypeForValueWithTwelve,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -354,6 +417,8 @@ export class StatisticsService {
         fieldNameFromDb: 'grossAmountMoneyForSickDays',
         defaultValue: checkTypeForValueGross,
         value: checkTypeForValueGross,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -361,6 +426,8 @@ export class StatisticsService {
         fieldNameFromDb: 'nettoAmountMoneyForSickDays',
         defaultValue: checkTypeForValueNet,
         value: checkTypeForValueNet,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -368,6 +435,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalMoneyEarnedGross',
         defaultValue: checkTypeForValueGross,
         value: checkTypeForValueGross,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -375,6 +444,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalMoneyEarnedNetto',
         defaultValue: checkTypeForValueNet,
         value: checkTypeForValueNet,
+        dayId,
+        type,
       });
       await this.findAndUpdateStatisticksField(userId, {
         month,
@@ -382,6 +453,8 @@ export class StatisticsService {
         fieldNameFromDb: 'totalTaxPaid',
         defaultValue: checkTypeForTax,
         value: checkTypeForTax,
+        dayId,
+        type,
       });
     }
     if (workShiftNumber === WorkShiftNumber.Shift1) {
@@ -396,6 +469,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberFirstShifts',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
     }
     if (workShiftNumber === WorkShiftNumber.Shift2) {
@@ -410,6 +485,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberSecondShifts',
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
+        dayId,
+        type,
       });
     }
     if (workShiftNumber === WorkShiftNumber.Shift2 && nightHours > 0) {
@@ -424,6 +501,8 @@ export class StatisticsService {
         fieldNameFromDb: 'numberNightHours',
         defaultValue: checkTypeForNightHours,
         value: checkTypeForNightHours,
+        dayId,
+        type,
       });
     }
   }

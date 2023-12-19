@@ -77,6 +77,7 @@ export class CalendarsService {
       year,
       userId,
       type: TypeOperation.Increment,
+      dayId: newDay._id,
     });
 
     return {
@@ -123,6 +124,7 @@ export class CalendarsService {
         year,
         userId,
         type: TypeOperation.Decrement,
+        dayId: oldInformationAboutDay._id,
       });
       await this.statisticksService.changeStatisticsForDaysAndHours({
         dataByClient: dto,
@@ -130,6 +132,7 @@ export class CalendarsService {
         year,
         userId,
         type: TypeOperation.Increment,
+        dayId: updatedPost._id,
       });
     }
 
@@ -169,6 +172,7 @@ export class CalendarsService {
       year,
       userId,
       type: TypeOperation.Decrement,
+      dayId: deletedDay._id,
     });
 
     return {
