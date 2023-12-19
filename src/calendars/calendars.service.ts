@@ -182,4 +182,8 @@ export class CalendarsService {
       message: 'Information about the selected day has been successfully deleted.',
     };
   }
+
+  async deleteManyByDb(userId: Types.ObjectId): Promise<void> {
+    await this.DayModel.deleteMany({ owner: userId });
+  }
 }

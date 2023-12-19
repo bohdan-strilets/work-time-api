@@ -80,4 +80,8 @@ export class TokensService {
 
     return null;
   }
+
+  async deleteTokensByDb(userId: Types.ObjectId): Promise<void> {
+    await this.TokenModel.findOneAndDelete({ owner: userId });
+  }
 }

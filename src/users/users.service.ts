@@ -5,7 +5,6 @@ import { v4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import * as fs from 'fs';
 import { User, UserDocument } from './schemas/user.schema';
-import { Token, TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { TokensService } from 'src/tokens/tokens.service';
@@ -19,19 +18,18 @@ import { AMOUNT_SALT } from 'src/utilities/constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokensType } from 'src/tokens/types/tokens.type';
 import TokenType from 'src/tokens/enums/token-type.enum';
-import { Day, DayDocument } from 'src/calendars/schemas/day.schema';
 import { StatisticsService } from 'src/statistics/statistics.service';
+import { CalendarsService } from 'src/calendars/calendars.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
-    @InjectModel(Token.name) private TokenModel: Model<TokenDocument>,
-    @InjectModel(Day.name) private DayModel: Model<DayDocument>,
     private readonly sendgridService: SendgridService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly tokenService: TokensService,
     private readonly statisticsService: StatisticsService,
+    private readonly calendarsService: CalendarsService,
   ) {}
 
   async activationEmail(activationToken: string): Promise<ResponseType | undefined> {
@@ -335,9 +333,8 @@ export class UsersService {
     const user = await this.UserModel.findById(userId);
     const isGoogleAvatar = this.cloudinaryService.isGoogleAvatarUrl(user.avatarUrl);
     await this.UserModel.findByIdAndDelete(userId);
-    const tokens = await this.TokenModel.findOne({ owner: userId });
-    await this.TokenModel.findByIdAndDelete(tokens._id);
-    await this.DayModel.deleteMany({ owner: user._id });
+    await this.calendarsService.deleteManyByDb(userId);
+    await this.tokenService.deleteTokensByDb(userId);
     await this.statisticsService.deletUserStatistics(userId);
 
     const avatarPublicId = this.cloudinaryService.getPublicId(user.avatarUrl);

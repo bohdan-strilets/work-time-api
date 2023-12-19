@@ -23,7 +23,7 @@ export class StatisticsService {
       dayId: Types.ObjectId;
       type: TypeOperation;
     },
-  ) {
+  ): Promise<void> {
     const FIELD_NAME_DB = 'statisticsByMonths';
     const { month, year, fieldNameFromDb, defaultValue, value, dayId, type } = params;
     const statistics = await this.StatisticsModel.findOne({ owner: userId });
@@ -90,7 +90,7 @@ export class StatisticsService {
     userId: Types.ObjectId;
     type: TypeOperation;
     dayId: Types.ObjectId;
-  }) {
+  }): Promise<void> {
     const { dataByClient, month, year, userId, type, dayId } = params;
     const {
       grossEarnings,
@@ -507,7 +507,7 @@ export class StatisticsService {
     }
   }
 
-  async deletUserStatistics(userId: Types.ObjectId) {
+  async deletUserStatistics(userId: Types.ObjectId): Promise<void> {
     await this.StatisticsModel.findOneAndDelete({ owner: userId });
   }
 }

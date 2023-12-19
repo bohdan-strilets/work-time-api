@@ -9,5 +9,6 @@ import { StatisticsModule } from 'src/statistics/statistics.module';
   imports: [MongooseModule.forFeature([{ name: Day.name, schema: DaySchema }]), StatisticsModule],
   controllers: [CalendarsController],
   providers: [CalendarsService],
+  exports: [CalendarsService],
 })
 export class CalendarsModule {}
