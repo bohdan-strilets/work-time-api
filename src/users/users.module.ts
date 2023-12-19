@@ -8,6 +8,7 @@ import { TokensModule } from 'src/tokens/tokens.module';
 import { User, UserSchema } from './schemas/user.schema';
 import { Token, TokenSchema } from 'src/tokens/schemas/token.schema.ts';
 import { Day, DaySchema } from 'src/calendars/schemas/day.schema';
+import { StatisticsModule } from 'src/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Day, DaySchema } from 'src/calendars/schemas/day.schema';
     SendgridModule,
     CloudinaryModule,
     TokensModule,
+    StatisticsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

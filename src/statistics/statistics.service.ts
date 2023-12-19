@@ -506,4 +506,8 @@ export class StatisticsService {
       });
     }
   }
+
+  async deletUserStatistics(userId: Types.ObjectId) {
+    await this.StatisticsModel.findOneAndDelete({ owner: userId });
+  }
 }

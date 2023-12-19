@@ -20,6 +20,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokensType } from 'src/tokens/types/tokens.type';
 import TokenType from 'src/tokens/enums/token-type.enum';
 import { Day, DayDocument } from 'src/calendars/schemas/day.schema';
+import { StatisticsService } from 'src/statistics/statistics.service';
 
 @Injectable()
 export class UsersService {
@@ -30,6 +31,7 @@ export class UsersService {
     private readonly sendgridService: SendgridService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly tokenService: TokensService,
+    private readonly statisticsService: StatisticsService,
   ) {}
 
   async activationEmail(activationToken: string): Promise<ResponseType | undefined> {
@@ -336,6 +338,7 @@ export class UsersService {
     const tokens = await this.TokenModel.findOne({ owner: userId });
     await this.TokenModel.findByIdAndDelete(tokens._id);
     await this.DayModel.deleteMany({ owner: user._id });
+    await this.statisticsService.deletUserStatistics(userId);
 
     const avatarPublicId = this.cloudinaryService.getPublicId(user.avatarUrl);
 
