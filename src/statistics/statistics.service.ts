@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Statistics, StatisticsDocument } from './schemas/statistics.schema';
@@ -7,6 +7,7 @@ import WorkShiftNumber from 'src/calendars/enums/work-shift-number.enum';
 import TypeOperation from './enums/type-operation.enum';
 import { DayInfoType } from 'src/calendars/types/day-info.type';
 import { MonthType } from './types/month.type';
+import { ResponseType } from './types/response.type';
 
 @Injectable()
 export class StatisticsService {
@@ -509,5 +510,18 @@ export class StatisticsService {
 
   async deletUserStatistics(userId: Types.ObjectId): Promise<void> {
     await this.StatisticsModel.findOneAndDelete({ owner: userId });
+  }
+
+  async getStatistics(
+    userId: Types.ObjectId,
+  ): Promise<ResponseType<StatisticsDocument> | undefined> {
+    const statistics = await this.StatisticsModel.findOne({ owner: userId });
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: statistics,
+    };
   }
 }
