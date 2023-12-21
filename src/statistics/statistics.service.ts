@@ -8,6 +8,7 @@ import TypeOperation from './enums/type-operation.enum';
 import { DayInfoType } from 'src/calendars/types/day-info.type';
 import { MonthType } from './types/month.type';
 import { ResponseType } from './types/response.type';
+import statisticsGroup from './utilities/statistics-group';
 
 @Injectable()
 export class StatisticsService {
@@ -19,9 +20,9 @@ export class StatisticsService {
       month: number;
       year: string;
       fieldNameFromDb: string;
-      defaultValue: number;
-      value: number;
-      dayId: Types.ObjectId;
+      defaultValue?: number;
+      value?: number;
+      dayId?: Types.ObjectId;
       type: TypeOperation;
     },
   ): Promise<void> {
@@ -48,7 +49,9 @@ export class StatisticsService {
         updatedData[index] = { ...selectedMonth, value: filteredValue };
       }
     } else {
-      updatedData.push({ month, year, value: [{ dayId, value: defaultValue }] });
+      defaultValue !== 0
+        ? updatedData.push({ month, year, value: [{ dayId, value: defaultValue }] })
+        : updatedData.push({ month, year, value: [] });
     }
 
     const updateField = `${FIELD_NAME_DB}.${fieldNameFromDb}`;
@@ -82,6 +85,33 @@ export class StatisticsService {
       return midnight - startNightTime;
     }
     return midnight - startNightTime + endTime;
+  }
+
+  async addDefaultValueForEachField(params: {
+    userId: Types.ObjectId;
+    fields: string[];
+    month: number;
+    year: string;
+    type: TypeOperation;
+  }) {
+    const { userId, fields, month, year, type } = params;
+    const statistics = await this.StatisticsModel.findOne({ owner: userId });
+
+    fields.map(async name => {
+      const existingField = statistics.statisticsByMonths[name].find(
+        (item: MonthType) => item.month === month && item.year === year,
+      );
+      if (!existingField) {
+        await this.findAndUpdateStatisticksField(userId, {
+          month,
+          year,
+          fieldNameFromDb: name,
+          defaultValue: 0,
+          type,
+        });
+      }
+      return;
+    });
   }
 
   async changeStatisticsForDaysAndHours(params: {
@@ -211,6 +241,13 @@ export class StatisticsService {
         dayId,
         type,
       });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.works,
+        month,
+        year,
+        type,
+      });
     }
     if (status === Status.work && additionalHours) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
@@ -238,6 +275,13 @@ export class StatisticsService {
         dayId,
         type,
       });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.additionalWork,
+        month,
+        year,
+        type,
+      });
     }
     if (status === Status.dayOff) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
@@ -262,6 +306,13 @@ export class StatisticsService {
         defaultValue: checkTypeForValueWithTwelve,
         value: checkTypeForValueWithTwelve,
         dayId,
+        type,
+      });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.dayOff,
+        month,
+        year,
         type,
       });
     }
@@ -361,6 +412,13 @@ export class StatisticsService {
         dayId,
         type,
       });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.vacation,
+        month,
+        year,
+        type,
+      });
     }
     if (status === Status.sickLeave) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
@@ -457,6 +515,13 @@ export class StatisticsService {
         dayId,
         type,
       });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.siclLeave,
+        month,
+        year,
+        type,
+      });
     }
     if (workShiftNumber === WorkShiftNumber.Shift1) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
@@ -471,6 +536,13 @@ export class StatisticsService {
         defaultValue: checkTypeForValueWithOne,
         value: checkTypeForValueWithOne,
         dayId,
+        type,
+      });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.firstShift,
+        month,
+        year,
         type,
       });
     }
@@ -489,6 +561,13 @@ export class StatisticsService {
         dayId,
         type,
       });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.secondShift,
+        month,
+        year,
+        type,
+      });
     }
     if (workShiftNumber === WorkShiftNumber.Shift2 && nightHours > 0) {
       await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
@@ -503,6 +582,13 @@ export class StatisticsService {
         defaultValue: checkTypeForNightHours,
         value: checkTypeForNightHours,
         dayId,
+        type,
+      });
+      await this.addDefaultValueForEachField({
+        userId,
+        fields: statisticsGroup.nightHours,
+        month,
+        year,
         type,
       });
     }
