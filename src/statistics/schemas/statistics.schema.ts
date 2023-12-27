@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
-import { GeneralStatisticsDocument, GeneralStatistics } from './general-statistics.schema';
 import { MonthStatisticsDocument, MonthStatistics } from './month-statistics.schema';
 
 export type StatisticsDocument = HydratedDocument<Statistics>;
@@ -10,9 +9,6 @@ export type StatisticsDocument = HydratedDocument<Statistics>;
 export class Statistics {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
-
-  @Prop({ type: GeneralStatistics, default: {} })
-  generalStatistics: GeneralStatisticsDocument;
 
   @Prop({ type: MonthStatistics, default: {} })
   statisticsByMonths: MonthStatisticsDocument;

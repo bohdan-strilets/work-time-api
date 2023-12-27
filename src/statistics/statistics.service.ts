@@ -132,7 +132,6 @@ export class StatisticsService {
       additionalHours,
       time,
     } = dataByClient;
-    const statistics = await this.StatisticsModel.findOne({ owner: userId });
     const checkTypeForNumberHoursWorked =
       type === TypeOperation.Increment ? numberHoursWorked : -numberHoursWorked;
     const checkTypeForValueWithOne = type === TypeOperation.Increment ? 1 : -1;
@@ -146,20 +145,6 @@ export class StatisticsService {
     const checkTypeForNightHours = type == TypeOperation.Increment ? nightHours : -nightHours;
 
     if (status === Status.work) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberWorkingDays': checkTypeForValueWithOne,
-          'generalStatistics.totalDays': checkTypeForValueWithOne,
-          'generalStatistics.numberWorkingHours': checkTypeForNumberHoursWorked,
-          'generalStatistics.totalHours': checkTypeForNumberHoursWorked,
-          'generalStatistics.grossAmountMoneyForWorkingDays': checkTypeForValueGross,
-          'generalStatistics.nettoAmountMoneyForWorkingDays': checkTypeForValueNet,
-          'generalStatistics.totalMoneyEarnedGross': checkTypeForValueGross,
-          'generalStatistics.totalMoneyEarnedNetto': checkTypeForValueNet,
-          'generalStatistics.totalTaxPaid': checkTypeForTax,
-        },
-      });
-
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -250,13 +235,6 @@ export class StatisticsService {
       });
     }
     if (status === Status.work && additionalHours) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberAdditionalWorkingDays': checkTypeForValueWithOne,
-          'generalStatistics.numberAdditionalWorkingHours': checkTypeForNumberHoursWorked,
-        },
-      });
-
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -284,12 +262,6 @@ export class StatisticsService {
       });
     }
     if (status === Status.dayOff) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberDaysOff': checkTypeForValueWithOne,
-          'generalStatistics.numberFreeHours': checkTypeForValueWithTwelve,
-        },
-      });
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -317,20 +289,6 @@ export class StatisticsService {
       });
     }
     if (status === Status.vacation) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberVacationDays': checkTypeForValueWithOne,
-          'generalStatistics.totalDays': checkTypeForValueWithOne,
-          'generalStatistics.numberVacationHours': checkTypeForNumberHoursWorked,
-          'generalStatistics.totalHours': checkTypeForNumberHoursWorked,
-          'generalStatistics.grossAmountMoneyForVacationDays': checkTypeForValueGross,
-          'generalStatistics.nettoAmountMoneyForVacationDays': checkTypeForValueNet,
-          'generalStatistics.totalMoneyEarnedGross': checkTypeForValueGross,
-          'generalStatistics.totalMoneyEarnedNetto': checkTypeForValueNet,
-          'generalStatistics.totalTaxPaid': checkTypeForTax,
-        },
-      });
-
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -421,19 +379,6 @@ export class StatisticsService {
       });
     }
     if (status === Status.sickLeave) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberSickDays': checkTypeForValueWithOne,
-          'generalStatistics.totalDays': checkTypeForValueWithOne,
-          'generalStatistics.numberSickHours': checkTypeForNumberHoursWorked,
-          'generalStatistics.totalHours': checkTypeForNumberHoursWorked,
-          'generalStatistics.grossAmountMoneyForSickDays': checkTypeForValueGross,
-          'generalStatistics.nettoAmountMoneyForSickDays': checkTypeForValueNet,
-          'generalStatistics.totalMoneyEarnedGross': checkTypeForValueGross,
-          'generalStatistics.totalMoneyEarnedNetto': checkTypeForValueNet,
-          'generalStatistics.totalTaxPaid': checkTypeForTax,
-        },
-      });
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -524,11 +469,6 @@ export class StatisticsService {
       });
     }
     if (workShiftNumber === WorkShiftNumber.Shift1) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberFirstShifts': checkTypeForValueWithOne,
-        },
-      });
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -547,11 +487,6 @@ export class StatisticsService {
       });
     }
     if (workShiftNumber === WorkShiftNumber.Shift2) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberSecondShifts': checkTypeForValueWithOne,
-        },
-      });
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
@@ -570,11 +505,6 @@ export class StatisticsService {
       });
     }
     if (workShiftNumber === WorkShiftNumber.Shift2 && nightHours > 0) {
-      await this.StatisticsModel.findByIdAndUpdate(statistics._id, {
-        $inc: {
-          'generalStatistics.numberNightHours': checkTypeForNightHours,
-        },
-      });
       await this.findAndUpdateStatisticksField(userId, {
         month,
         year,
