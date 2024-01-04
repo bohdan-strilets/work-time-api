@@ -104,7 +104,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('upload-avatar')
-  @UseInterceptors(FileInterceptor('avatar', { dest: './public' }))
+  @UseInterceptors(FileInterceptor('avatar', { dest: '/tmp/uploads' }))
   async uploadAvatar(
     @UploadedFile(imageValidator)
     file: Express.Multer.File,
