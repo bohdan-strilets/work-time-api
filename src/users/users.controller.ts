@@ -32,8 +32,10 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokensType } from 'src/tokens/types/tokens.type';
 import { REFRESH_TOKEN } from 'src/utilities/constants';
 import { PayloadType } from 'src/tokens/types/payload.type';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

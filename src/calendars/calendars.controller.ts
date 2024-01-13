@@ -6,9 +6,11 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthRequest } from 'src/users/types/auth-request.type';
 import { DayDto } from './dto/day.dto';
 import { PayloadType } from 'src/tokens/types/payload.type';
+import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard)
 @Controller('calendars')
+@ApiTags('calendars')
 export class CalendarsController {
   constructor(private readonly calendarsService: CalendarsService) {}
 

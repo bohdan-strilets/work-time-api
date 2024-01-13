@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegistrationDto } from './dto/registration.dto';
@@ -21,6 +22,7 @@ import { REFRESH_TOKEN } from 'src/utilities/constants';
 import { TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
