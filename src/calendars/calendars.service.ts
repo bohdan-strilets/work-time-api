@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Day, DayDocument } from './schemas/day.schema';
-import { ResponseType } from './types/response.type';
+import { CalendarResponseType } from './types/response.type';
 import { DayDto } from './dto/day.dto';
 import { StatisticsService } from 'src/statistics/statistics.service';
 import TypeOperation from 'src/statistics/enums/type-operation.enum';
@@ -14,7 +14,9 @@ export class CalendarsService {
     private readonly statisticksService: StatisticsService,
   ) {}
 
-  async getAllDaysInfo(userId: Types.ObjectId): Promise<ResponseType<DayDocument[]> | undefined> {
+  async getAllDaysInfo(
+    userId: Types.ObjectId,
+  ): Promise<CalendarResponseType<DayDocument[]> | undefined> {
     const days = await this.DayModel.find({ owner: userId });
 
     return {
@@ -25,7 +27,7 @@ export class CalendarsService {
     };
   }
 
-  async getOneDayInfo(dayId: string): Promise<ResponseType<DayDocument> | undefined> {
+  async getOneDayInfo(dayId: string): Promise<CalendarResponseType<DayDocument> | undefined> {
     const day = await this.DayModel.findOne({ _id: dayId });
 
     if (!day) {
@@ -51,7 +53,7 @@ export class CalendarsService {
   async createDay(
     createDayDto: DayDto,
     userId: Types.ObjectId,
-  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+  ): Promise<CalendarResponseType<DayDocument> | CalendarResponseType | undefined> {
     if (!createDayDto) {
       throw new HttpException(
         {
@@ -92,7 +94,7 @@ export class CalendarsService {
     updateDayDto: DayDto,
     dayId: string,
     userId: Types.ObjectId,
-  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+  ): Promise<CalendarResponseType<DayDocument> | CalendarResponseType | undefined> {
     if (!updateDayDto) {
       throw new HttpException(
         {
@@ -147,7 +149,7 @@ export class CalendarsService {
   async deleteDay(
     dayId: string,
     userId: Types.ObjectId,
-  ): Promise<ResponseType<DayDocument> | ResponseType | undefined> {
+  ): Promise<CalendarResponseType<DayDocument> | CalendarResponseType | undefined> {
     if (!dayId) {
       throw new HttpException(
         {
