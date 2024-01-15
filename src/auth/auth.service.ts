@@ -8,7 +8,7 @@ import { Token, TokenDocument } from 'src/tokens/schemas/token.schema.ts';
 import { TokensService } from 'src/tokens/tokens.service';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { RegistrationDto } from './dto/registration.dto';
-import { ResponseType } from './types/response.type';
+import { AuthResponseType } from './types/response.type';
 import { LoginDto } from './dto/login.dto';
 import { AMOUNT_SALT } from 'src/utilities/constants';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
@@ -27,7 +27,7 @@ export class AuthService {
 
   async registration(
     registrationDto: RegistrationDto,
-  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
+  ): Promise<AuthResponseType<TokenDocument, UserDocument> | AuthResponseType | undefined> {
     const user = await this.UserModel.findOne({ email: registrationDto.email });
 
     if (user) {
@@ -71,7 +71,7 @@ export class AuthService {
 
   async login(
     loginDto: LoginDto,
-  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
+  ): Promise<AuthResponseType<TokenDocument, UserDocument> | AuthResponseType | undefined> {
     const user = await this.UserModel.findOne({ email: loginDto.email });
     const checkPassword = bcrypt.compareSync(loginDto.password, user.password);
 
@@ -99,7 +99,7 @@ export class AuthService {
     };
   }
 
-  async logout(refreshToken: string): Promise<ResponseType | undefined> {
+  async logout(refreshToken: string): Promise<AuthResponseType | undefined> {
     if (!refreshToken) {
       throw new HttpException(
         {
@@ -138,7 +138,7 @@ export class AuthService {
 
   async googleAuth(
     token: string,
-  ): Promise<ResponseType<TokenDocument, UserDocument> | ResponseType | undefined> {
+  ): Promise<AuthResponseType<TokenDocument, UserDocument> | AuthResponseType | undefined> {
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
 
     const ticket = await client.verifyIdToken({

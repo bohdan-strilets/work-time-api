@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { CLIENT_URL } from './utilities/constants';
+import { CLIENT_URL, API_URL } from './utilities/constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +15,7 @@ async function bootstrap() {
     .addTag('users', 'Methods for user profile management')
     .addTag('calendars', 'Methods for managing user calendars')
     .addTag('statistics', 'Methods for retrieving user statistics')
+    .addServer(`${API_URL}api/v1/`)
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
