@@ -16,6 +16,7 @@ async function bootstrap() {
     .addTag('calendars', 'Methods for managing user calendars')
     .addTag('statistics', 'Methods for retrieving user statistics')
     .addServer(`${API_URL}api/v1/`)
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

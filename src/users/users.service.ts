@@ -8,7 +8,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { TokensService } from 'src/tokens/tokens.service';
-import { ResponseType } from './types/response.type';
+import { UserResponseType } from './types/response.type';
 import { EmailDto } from './dto/email.dto';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -32,7 +32,7 @@ export class UsersService {
     private readonly calendarsService: CalendarsService,
   ) {}
 
-  async activationEmail(activationToken: string): Promise<ResponseType | undefined> {
+  async activationEmail(activationToken: string): Promise<UserResponseType | undefined> {
     const user = await this.UserModel.findOne({ activationToken });
 
     if (!user) {
@@ -57,7 +57,7 @@ export class UsersService {
     };
   }
 
-  async repeatActivationEmail(emailDto: EmailDto): Promise<ResponseType | undefined> {
+  async repeatActivationEmail(emailDto: EmailDto): Promise<UserResponseType | undefined> {
     const user = await this.UserModel.findOne({ email: emailDto.email });
 
     if (!user) {
@@ -87,7 +87,7 @@ export class UsersService {
 
   async getCurrentUser(
     userId: Types.ObjectId,
-  ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
+  ): Promise<UserResponseType<UserDocument> | UserResponseType | undefined> {
     if (!userId) {
       throw new HttpException(
         {
@@ -125,7 +125,7 @@ export class UsersService {
   async changeProfile(
     userId: Types.ObjectId,
     changeProfileDto: ChangeProfileDto,
-  ): Promise<ResponseType<UserDocument> | ResponseType | undefined> {
+  ): Promise<UserResponseType<UserDocument> | UserResponseType | undefined> {
     if (!userId) {
       throw new HttpException(
         {
@@ -162,7 +162,10 @@ export class UsersService {
     };
   }
 
-  async changeEmail(userId: Types.ObjectId, emailDto: EmailDto): Promise<ResponseType | undefined> {
+  async changeEmail(
+    userId: Types.ObjectId,
+    emailDto: EmailDto,
+  ): Promise<UserResponseType | undefined> {
     if (!userId) {
       throw new HttpException(
         {
@@ -197,7 +200,7 @@ export class UsersService {
     };
   }
 
-  async requestResetPassword(emailDto: EmailDto): Promise<ResponseType | undefined> {
+  async requestResetPassword(emailDto: EmailDto): Promise<UserResponseType | undefined> {
     const user = await this.UserModel.findOne({ email: emailDto.email });
 
     if (!user) {
@@ -223,7 +226,7 @@ export class UsersService {
     };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType | undefined> {
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<UserResponseType | undefined> {
     const password = bcrypt.hashSync(resetPasswordDto.password, bcrypt.genSaltSync(AMOUNT_SALT));
     const user = await this.UserModel.findOne({ email: resetPasswordDto.email });
 
@@ -252,7 +255,7 @@ export class UsersService {
   async uploadAvatar(
     file: Express.Multer.File,
     userId: Types.ObjectId,
-  ): Promise<ResponseType<UserDocument> | undefined> {
+  ): Promise<UserResponseType<UserDocument> | undefined> {
     const user = await this.UserModel.findById(userId);
     const publicId = this.cloudinaryService.getPublicId(user.avatarUrl);
     const isGoogleAvatar = this.cloudinaryService.isGoogleAvatarUrl(user.avatarUrl);
@@ -284,7 +287,7 @@ export class UsersService {
   async chnangePassword(
     changePasswordDto: ChangePasswordDto,
     userId: Types.ObjectId,
-  ): Promise<ResponseType | undefined> {
+  ): Promise<UserResponseType | undefined> {
     const user = await this.UserModel.findById(userId);
 
     if (changePasswordDto.password) {
@@ -317,7 +320,7 @@ export class UsersService {
     };
   }
 
-  async deleteProfile(userId: Types.ObjectId): Promise<ResponseType | undefined> {
+  async deleteProfile(userId: Types.ObjectId): Promise<UserResponseType | undefined> {
     if (!userId) {
       throw new HttpException(
         {
@@ -354,7 +357,7 @@ export class UsersService {
     };
   }
 
-  async refreshUser(refreshToken: string): Promise<ResponseType<TokensType> | undefined> {
+  async refreshUser(refreshToken: string): Promise<UserResponseType<TokensType> | undefined> {
     if (!refreshToken) {
       throw new HttpException(
         {
