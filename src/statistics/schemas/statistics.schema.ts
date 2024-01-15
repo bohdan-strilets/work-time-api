@@ -13,7 +13,7 @@ export class Statistics {
   owner: User;
 
   @ApiProperty({ type: MonthStatistics })
-  @Prop({ type: MonthStatistics })
+  @Prop({ type: MonthStatistics, default: {} })
   statisticsByMonths: MonthStatisticsDocument;
 
   @ApiProperty()
