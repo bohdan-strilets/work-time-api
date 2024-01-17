@@ -72,7 +72,17 @@ export class AuthController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Bad email or password or not activated.',
+    description: 'Email is wrong!',
+    type: ErrorResponseType,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Password is wrong!',
+    type: ErrorResponseType,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Email is not activated.',
     type: ErrorResponseType,
   })
   async login(

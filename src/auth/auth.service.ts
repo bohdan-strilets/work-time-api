@@ -73,15 +73,40 @@ export class AuthService {
     loginDto: LoginDto,
   ): Promise<AuthResponseType<TokenDocument, UserDocument> | AuthResponseType | undefined> {
     const user = await this.UserModel.findOne({ email: loginDto.email });
-    const checkPassword = bcrypt.compareSync(loginDto.password, user.password);
 
-    if (!user || !checkPassword || !user.isActivated) {
+    if (!user) {
       throw new HttpException(
         {
           status: 'error',
           code: HttpStatus.UNAUTHORIZED,
           success: false,
-          message: 'Email or password is wrong or email is not activated.',
+          message: 'Email is wrong!',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const checkPassword = bcrypt.compareSync(loginDto.password, user.password);
+
+    if (!checkPassword) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'Password is wrong!',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    if (!user.isActivated) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'Email is not activated.',
         },
         HttpStatus.UNAUTHORIZED,
       );
