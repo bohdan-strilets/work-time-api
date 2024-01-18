@@ -396,4 +396,15 @@ export class UsersService {
       tokens,
     };
   }
+
+  async getAllUsers(): Promise<UserResponseType<UserDocument[]> | undefined> {
+    const users = await this.UserModel.find();
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: users,
+    };
+  }
 }

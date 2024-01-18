@@ -336,4 +336,24 @@ export class UsersController {
     res.cookie(REFRESH_TOKEN, data.tokens.refreshToken);
     return data;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Method for getting a list of all users.',
+    description: 'Endpoint for getting a list of all registered users.',
+    externalDocs: {
+      url: `${API_URL}api/v1/users/get-all-users`,
+      description: 'Link to get a list of all users.',
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a users list.',
+  })
+  @ApiBearerAuth()
+  @Get('get-all-users')
+  async getAllUsers(): Promise<UserResponseType<UserDocument[]> | undefined> {
+    const data = await this.usersService.getAllUsers();
+    return data;
+  }
 }
