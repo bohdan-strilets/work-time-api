@@ -398,7 +398,7 @@ export class UsersService {
   }
 
   async getAllUsers(): Promise<UserResponseType<UserDocument[]> | undefined> {
-    const users = await this.UserModel.find();
+    const users = await this.UserModel.find().populate('statistics');
 
     return {
       status: 'success',
@@ -408,3 +408,4 @@ export class UsersService {
     };
   }
 }
+4;

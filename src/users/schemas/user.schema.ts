@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { CompanyInfo, CompanyInfoDocument } from './company-info.schema';
 import Gender from '../enums/gender.enum';
+import { Statistics } from 'src/statistics/schemas/statistics.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -51,6 +52,14 @@ export class User {
   @ApiProperty({ example: true })
   @Prop({ default: false })
   isActivated: boolean;
+
+  @ApiProperty({
+    example: new Types.ObjectId(),
+    type: Types.ObjectId,
+    description: 'Statistics ID',
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Statistics' })
+  statistics: Statistics;
 
   @ApiProperty()
   @Prop()

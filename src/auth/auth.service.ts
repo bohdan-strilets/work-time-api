@@ -58,7 +58,8 @@ export class AuthService {
     const tokens = await this.tokensService.createTokens(payload);
     const email = this.sendgridService.confirmEmail(newUser.email, newUser.activationToken);
     await this.sendgridService.sendEmail(email);
-    await this.StatisticsModel.create({ owner: newUser._id });
+    const statistics = await this.StatisticsModel.create({ owner: newUser._id });
+    await this.UserModel.findByIdAndUpdate(newUser._id, { statistics: statistics._id });
 
     return {
       status: 'success',
@@ -178,6 +179,7 @@ export class AuthService {
     if (userFromDB) {
       const payload = this.tokensService.createPayload(userFromDB);
       const tokens = await this.tokensService.createTokens(payload);
+
       return {
         status: 'success',
         code: HttpStatus.OK,
@@ -196,7 +198,9 @@ export class AuthService {
       const createdUser = await this.UserModel.create({ ...newUser });
       const payload = this.tokensService.createPayload(createdUser);
       const tokens = await this.tokensService.createTokens(payload);
-      await this.StatisticsModel.create({ owner: createdUser._id });
+      const statistics = await this.StatisticsModel.create({ owner: createdUser._id });
+      await this.UserModel.findByIdAndUpdate(createdUser._id, { statistics: statistics._id });
+
       return {
         status: 'success',
         code: HttpStatus.CREATED,
