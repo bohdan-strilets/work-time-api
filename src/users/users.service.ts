@@ -20,6 +20,7 @@ import { TokensType } from 'src/tokens/types/tokens.type';
 import TokenType from 'src/tokens/enums/token-type.enum';
 import { StatisticsService } from 'src/statistics/statistics.service';
 import { CalendarsService } from 'src/calendars/calendars.service';
+import { ChangeSettingsDto } from './dto/change-settings.dto';
 
 @Injectable()
 export class UsersService {
@@ -407,5 +408,34 @@ export class UsersService {
       data: users,
     };
   }
+
+  async changeSettings(
+    changeSettingsDto: ChangeSettingsDto,
+    userId: Types.ObjectId,
+  ): Promise<UserResponseType<UserDocument> | UserResponseType | undefined> {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const updatedUser = await this.UserModel.findByIdAndUpdate(
+      userId,
+      { settings: changeSettingsDto },
+      { new: true },
+    );
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: updatedUser,
+    };
+  }
 }
-4;

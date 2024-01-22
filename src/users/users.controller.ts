@@ -33,6 +33,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokensType } from 'src/tokens/types/tokens.type';
 import { REFRESH_TOKEN } from 'src/utilities/constants';
 import { PayloadType } from 'src/tokens/types/payload.type';
+import { ChangeSettingsDto } from './dto/change-settings.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -354,6 +355,35 @@ export class UsersController {
   @Get('get-all-users')
   async getAllUsers(): Promise<UserResponseType<UserDocument[]> | undefined> {
     const data = await this.usersService.getAllUsers();
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Change user calculation settings.',
+    description: 'Endpoint to change calculation settings for the authenticated user.',
+    externalDocs: {
+      url: `${API_URL}api/v1/users/change-settings`,
+      description: 'Link to detailed documentation for changing user calculation settings.',
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The calculation settings has been successfully update.',
+    type: UserResponseType<UserDocument>,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'User not unauthorized.',
+  })
+  @ApiBearerAuth()
+  @Put('change-settings')
+  async changeSettings(
+    @Body() changeSettingsDto: ChangeSettingsDto,
+    @Req() req: AuthRequest<PayloadType>,
+  ): Promise<UserResponseType<UserDocument> | UserResponseType | undefined> {
+    const { _id } = req.user;
+    const data = await this.usersService.changeSettings(changeSettingsDto, _id);
     return data;
   }
 }

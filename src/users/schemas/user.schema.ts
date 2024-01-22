@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CompanyInfo, CompanyInfoDocument } from './company-info.schema';
 import Gender from '../enums/gender.enum';
 import { Statistics } from 'src/statistics/schemas/statistics.schema';
+import { CalculationSetup } from './calculation-setup.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -60,6 +61,10 @@ export class User {
   })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Statistics' })
   statistics: Statistics;
+
+  @ApiProperty({ type: CalculationSetup })
+  @Prop({ type: CalculationSetup, default: {} })
+  settings: CalculationSetup;
 
   @ApiProperty()
   @Prop()
