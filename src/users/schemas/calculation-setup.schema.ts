@@ -13,9 +13,13 @@ export class CalculationSetup {
 
   @ApiProperty({ default: true })
   @Prop({ default: true })
-  areYouAlready26Years: true;
+  areYouAlready26Years: boolean;
 
   @ApiProperty({ default: false })
   @Prop({ default: false })
-  ppk: false;
+  ppk: boolean;
+
+  @ApiProperty({ default: 2 })
+  @Prop({ default: 2 })
+  ppkRate: number;
 }

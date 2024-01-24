@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsIn, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsIn, IsBoolean, IsNumber, Min, Max } from 'class-validator';
 import { ContractTypeEnum } from '../enums/contract-type.enum';
 
 export class ChangeSettingsDto {
@@ -14,4 +14,10 @@ export class ChangeSettingsDto {
   @IsBoolean()
   @IsOptional()
   ppk?: boolean;
+
+  @IsNumber()
+  @Min(0.5)
+  @Max(4)
+  @IsOptional()
+  ppkRate?: number;
 }
