@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as sendgrid from '@sendgrid/mail';
 import { EmailType } from './types/email.type';
-import { API_URL, CLIENT_URL } from 'src/utilities/constants';
+import { API_URL, CLIENT_URL_PROD } from 'src/utilities/constants';
 
 @Injectable()
 export class SendgridService {
@@ -49,7 +49,7 @@ export class SendgridService {
             <br />
             <p>You received this email because you requested a password reset on our site. To reset your password, please follow the link below:</p>
             <br />
-            <a target="_blank" href="${CLIENT_URL}/auth/reset-password">Link to password reset page</a>
+            <a target="_blank" href="${CLIENT_URL_PROD}/auth/reset-password">Link to password reset page</a>
             <br />
             <p>If you did not request a password reset, please ignore this message.<p/>
             <br />

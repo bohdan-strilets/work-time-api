@@ -21,7 +21,7 @@ import { Response } from 'express';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserResponseType } from './types/response.type';
-import { API_URL, CLIENT_URL } from 'src/utilities/constants';
+import { API_URL, CLIENT_URL_PROD } from 'src/utilities/constants';
 import { EmailDto } from './dto/email.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserDocument } from './schemas/user.schema';
@@ -41,7 +41,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('activation-email/:activationToken')
-  @Redirect(CLIENT_URL)
+  @Redirect(CLIENT_URL_PROD)
   @ApiOperation({
     summary: 'Activate user account',
     description: 'Endpoint to activate a user account using the provided activation token.',
