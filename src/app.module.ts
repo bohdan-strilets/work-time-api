@@ -10,6 +10,7 @@ import { SendgridModule } from './sendgrid/sendgrid.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CalendarsModule } from './calendars/calendars.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { TodosModule } from './todos/todos.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     CloudinaryModule,
     CalendarsModule,
     StatisticsModule,
+    TodosModule,
   ],
 })
 export class AppModule {}
