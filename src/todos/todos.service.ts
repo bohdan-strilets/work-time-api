@@ -151,4 +151,27 @@ export class TodosService {
       data: updatedTodo,
     };
   }
+
+  async getTodosByDate(dayId: string): Promise<TodosResponseType<TodoDocument[]> | undefined> {
+    if (!dayId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.BAD_REQUEST,
+          success: false,
+          message: 'There was no ID specified for the day.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const todosForDay = await this.TodoModel.find({ dayId });
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      data: todosForDay,
+    };
+  }
 }

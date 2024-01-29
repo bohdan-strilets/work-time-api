@@ -137,4 +137,22 @@ export class TodosController {
     const data = await this.todosService.updateCompleted(todoId, updateCompletedDto);
     return data;
   }
+
+  @ApiOperation({ summary: 'Get a to-do list for a specific day.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful retrieval of to-do list by day ID.',
+    type: TodosResponseType<TodoDocument>,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'There was no ID specified for the day.',
+  })
+  @Get('get-todos-by-date/:dayId')
+  async getTodosByDate(
+    @Param('dayId') dayId: string,
+  ): Promise<TodosResponseType<TodoDocument[]> | undefined> {
+    const data = await this.todosService.getTodosByDate(dayId);
+    return data;
+  }
 }

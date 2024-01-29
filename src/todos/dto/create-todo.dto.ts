@@ -3,6 +3,9 @@ import Priority from '../enums/priority.enum';
 
 export class CreateTodoDto {
   @IsString()
+  dayId: string;
+
+  @IsString()
   @MinLength(1)
   @MaxLength(1000)
   task: string;

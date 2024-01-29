@@ -3,6 +3,7 @@ import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/users/schemas/user.schema';
 import Priority from '../enums/priority.enum';
+import { Day } from 'src/calendars/schemas/day.schema';
 
 export type TodoDocument = HydratedDocument<Todo>;
 
@@ -11,6 +12,10 @@ export class Todo {
   @ApiProperty({ example: new Types.ObjectId(), type: Types.ObjectId, description: 'User ID' })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
+
+  @ApiProperty({ example: new Types.ObjectId(), type: Types.ObjectId, description: 'Day ID' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Day' })
+  dayId: Day;
 
   @ApiProperty({ example: 'Example text for todo.' })
   @Prop({ required: true })
