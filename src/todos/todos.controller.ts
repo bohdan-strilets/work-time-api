@@ -132,7 +132,7 @@ export class TodosController {
   @Put('update-completed/:todoId')
   async updateCompleted(
     @Param('todoId') todoId: string,
-    updateCompletedDto: UpdateCompletedDto,
+    @Body() updateCompletedDto: UpdateCompletedDto,
   ): Promise<TodosResponseType<TodoDocument> | undefined> {
     const data = await this.todosService.updateCompleted(todoId, updateCompletedDto);
     return data;
