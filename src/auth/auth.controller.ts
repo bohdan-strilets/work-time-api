@@ -51,7 +51,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseType<Token, UserDocument> | AuthResponseType | undefined> {
     const data = await this.authService.registration(registrationDto);
-    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken);
+    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken, { sameSite: 'none' });
     return data;
   }
 
@@ -90,7 +90,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseType<Token, UserDocument> | AuthResponseType | undefined> {
     const data = await this.authService.login(loginDto);
-    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken);
+    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken, { sameSite: 'none' });
     return data;
   }
 
@@ -121,7 +121,7 @@ export class AuthController {
   ): Promise<AuthResponseType | undefined> {
     const refreshToken = req.cookies[REFRESH_TOKEN];
     const data = await this.authService.logout(refreshToken);
-    res.clearCookie(REFRESH_TOKEN);
+    res.clearCookie(REFRESH_TOKEN, { sameSite: 'none' });
     return data;
   }
 
@@ -144,7 +144,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseType<TokenDocument, UserDocument> | AuthResponseType | undefined> {
     const data = await this.authService.googleAuth(token);
-    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken);
+    res.cookie(REFRESH_TOKEN, data.tokens.refreshToken, { sameSite: 'none' });
     return data;
   }
 }
