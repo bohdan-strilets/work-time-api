@@ -79,11 +79,11 @@ export class AuthService {
       throw new HttpException(
         {
           status: 'error',
-          code: HttpStatus.UNAUTHORIZED,
+          code: HttpStatus.BAD_REQUEST,
           success: false,
           message: 'Email is wrong!',
         },
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -93,11 +93,11 @@ export class AuthService {
       throw new HttpException(
         {
           status: 'error',
-          code: HttpStatus.UNAUTHORIZED,
+          code: HttpStatus.BAD_REQUEST,
           success: false,
           message: 'Password is wrong!',
         },
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -105,11 +105,11 @@ export class AuthService {
       throw new HttpException(
         {
           status: 'error',
-          code: HttpStatus.UNAUTHORIZED,
+          code: HttpStatus.BAD_REQUEST,
           success: false,
           message: 'Email is not activated.',
         },
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 

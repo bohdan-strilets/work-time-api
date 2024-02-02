@@ -71,17 +71,17 @@ export class AuthController {
     type: AuthResponseType<Token, UserDocument>,
   })
   @ApiResponse({
-    status: 401,
+    status: 400,
     description: 'Email is wrong!',
     type: ErrorResponseType,
   })
   @ApiResponse({
-    status: 401,
+    status: 400,
     description: 'Password is wrong!',
     type: ErrorResponseType,
   })
   @ApiResponse({
-    status: 401,
+    status: 400,
     description: 'Email is not activated.',
     type: ErrorResponseType,
   })
