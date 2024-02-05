@@ -29,6 +29,10 @@ export class Todo {
   @Prop({ default: false })
   isCompleted: boolean;
 
+  @ApiProperty({ example: new Date() })
+  @Prop({ required: true })
+  appointmentDate: string;
+
   @ApiProperty()
   @Prop()
   createdAt: Date;

@@ -1,4 +1,12 @@
-import { IsString, IsBoolean, IsIn, MinLength, MaxLength, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsIn,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsDateString,
+} from 'class-validator';
 import Priority from '../enums/priority.enum';
 
 export class CreateTodoDto {
@@ -17,4 +25,7 @@ export class CreateTodoDto {
   @IsBoolean()
   @IsOptional()
   isCompleted?: boolean;
+
+  @IsDateString()
+  appointmentDate: string;
 }
