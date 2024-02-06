@@ -27,5 +27,5 @@ export class CreateTodoDto {
   isCompleted?: boolean;
 
   @IsDateString()
-  appointmentDate: string;
+  appointmentDate: Date;
 }

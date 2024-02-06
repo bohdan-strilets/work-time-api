@@ -31,7 +31,7 @@ export class Todo {
 
   @ApiProperty({ example: new Date() })
   @Prop({ required: true })
-  appointmentDate: string;
+  appointmentDate: Date;
 
   @ApiProperty()
   @Prop()
