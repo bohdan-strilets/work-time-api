@@ -6,12 +6,14 @@ import { CalendarResponseType } from './types/response.type';
 import { DayDto } from './dto/day.dto';
 import { StatisticsService } from 'src/statistics/statistics.service';
 import TypeOperation from 'src/statistics/enums/type-operation.enum';
+import { TodosService } from 'src/todos/todos.service';
 
 @Injectable()
 export class CalendarsService {
   constructor(
     @InjectModel(Day.name) private DayModel: Model<DayDocument>,
     private readonly statisticksService: StatisticsService,
+    private readonly todosService: TodosService,
   ) {}
 
   async getAllDaysInfo(
@@ -168,6 +170,7 @@ export class CalendarsService {
     const month = this.statisticksService.getMonth(date);
     const year = this.statisticksService.getYear(date);
 
+    await this.todosService.deleteTodosByDayId(dayId);
     await this.statisticksService.changeStatisticsForDaysAndHours({
       dataByClient: dayInformation,
       month,

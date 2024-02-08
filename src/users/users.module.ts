@@ -8,6 +8,7 @@ import { TokensModule } from 'src/tokens/tokens.module';
 import { User, UserSchema } from './schemas/user.schema';
 import { StatisticsModule } from 'src/statistics/statistics.module';
 import { CalendarsModule } from 'src/calendars/calendars.module';
+import { TodosModule } from 'src/todos/todos.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CalendarsModule } from 'src/calendars/calendars.module';
     TokensModule,
     StatisticsModule,
     CalendarsModule,
+    TodosModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

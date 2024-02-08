@@ -21,6 +21,7 @@ import TokenType from 'src/tokens/enums/token-type.enum';
 import { StatisticsService } from 'src/statistics/statistics.service';
 import { CalendarsService } from 'src/calendars/calendars.service';
 import { ChangeSettingsDto } from './dto/change-settings.dto';
+import { TodosService } from 'src/todos/todos.service';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +32,7 @@ export class UsersService {
     private readonly tokenService: TokensService,
     private readonly statisticsService: StatisticsService,
     private readonly calendarsService: CalendarsService,
+    private readonly todosService: TodosService,
   ) {}
 
   async activationEmail(activationToken: string): Promise<UserResponseType | undefined> {
@@ -340,6 +342,7 @@ export class UsersService {
     await this.calendarsService.deleteManyByDb(userId);
     await this.tokenService.deleteTokensByDb(userId);
     await this.statisticsService.deletUserStatistics(userId);
+    await this.todosService.deleteTodoByUserId(userId);
 
     const avatarPublicId = this.cloudinaryService.getPublicId(user.avatarUrl);
 

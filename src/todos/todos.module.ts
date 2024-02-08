@@ -8,5 +8,6 @@ import { TodosController } from './todos.controller';
   imports: [MongooseModule.forFeature([{ name: Todo.name, schema: TodoSchema }])],
   controllers: [TodosController],
   providers: [TodosService],
+  exports: [TodosService],
 })
 export class TodosModule {}

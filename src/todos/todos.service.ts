@@ -174,4 +174,36 @@ export class TodosService {
       data: todosForDay,
     };
   }
+
+  async deleteTodosByDayId(dayId: string): Promise<void> {
+    if (!dayId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.BAD_REQUEST,
+          success: false,
+          message: 'There was no ID specified for the day.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.TodoModel.deleteMany({ dayId });
+  }
+
+  async deleteTodoByUserId(userId: Types.ObjectId): Promise<void> {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'User not unauthorized.',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    await this.TodoModel.deleteMany({ owner: userId });
+  }
 }
