@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WeatherService } from './weather.service';
 import { WeatherDto } from './dto/WeatherDto';
@@ -11,7 +11,7 @@ import { ErrorResponseType } from 'src/common/types/error-response.type';
 export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
-  @Get('get-weather')
+  @Post('get-weather')
   @ApiOperation({ summary: 'Get information for weather forecast by date.' })
   @ApiResponse({
     status: 200,
