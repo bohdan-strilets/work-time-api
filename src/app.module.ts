@@ -11,6 +11,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CalendarsModule } from './calendars/calendars.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { TodosModule } from './todos/todos.module';
+import { WeatherModule } from './weather/weather.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TodosModule } from './todos/todos.module';
     CalendarsModule,
     StatisticsModule,
     TodosModule,
+    WeatherModule,
   ],
 })
 export class AppModule {}
