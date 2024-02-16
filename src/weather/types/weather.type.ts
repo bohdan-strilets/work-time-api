@@ -15,4 +15,10 @@ export class WeatherType {
 
   @ApiProperty()
   minimumTemperature: number;
+
+  @ApiProperty()
+  location: {
+    country: string;
+    city: string;
+  };
 }

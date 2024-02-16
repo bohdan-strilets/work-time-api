@@ -50,6 +50,8 @@ export class WeatherService {
       }
 
       const forecastForDay = forecast?.forecast.forecastday[0].day;
+      const location = forecast.location;
+
       if (forecastForDay) {
         const normalizedForecast = {
           averageTemperature: forecastForDay.avgtemp_c,
@@ -57,6 +59,10 @@ export class WeatherService {
           weatherIcon: forecastForDay.condition.icon,
           maximumTemperature: forecastForDay.maxtemp_c,
           minimumTemperature: forecastForDay.mintemp_c,
+          location: {
+            country: location.country,
+            city: location.name,
+          },
         };
         return {
           status: 'success',
