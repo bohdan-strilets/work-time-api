@@ -34,6 +34,7 @@ import { TokensType } from 'src/tokens/types/tokens.type';
 import { REFRESH_TOKEN } from 'src/utilities/constants';
 import { PayloadType } from 'src/tokens/types/payload.type';
 import { ChangeSettingsDto } from './dto/change-settings.dto';
+import { ContactEmailDto } from './dto/contact-email.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -384,6 +385,21 @@ export class UsersController {
   ): Promise<UserResponseType<UserDocument> | UserResponseType | undefined> {
     const { _id } = req.user;
     const data = await this.usersService.changeSettings(changeSettingsDto, _id);
+    return data;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Send a contact letter to your destination.' })
+  @ApiResponse({ status: 200, description: 'Message sent successfully.' })
+  @ApiResponse({ status: 400, description: 'Check correct entered data.' })
+  @ApiBearerAuth()
+  @Post('send-contact-email')
+  async sendContactEmail(
+    @Body() contactEmailDto: ContactEmailDto,
+    @Req() req: AuthRequest<PayloadType>,
+  ) {
+    const { _id } = req.user;
+    const data = await this.usersService.sendContactEmail(_id, contactEmailDto);
     return data;
   }
 }

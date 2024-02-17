@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as sendgrid from '@sendgrid/mail';
 import { EmailType } from './types/email.type';
 import { API_URL, CLIENT_URL_PROD } from 'src/utilities/constants';
+import { ContactEmailDto } from 'src/users/dto/contact-email.dto';
 
 @Injectable()
 export class SendgridService {
@@ -54,6 +55,23 @@ export class SendgridService {
             <p>If you did not request a password reset, please ignore this message.<p/>
             <br />
             <p>Sincerely, site Team.</p>
+          </div>
+    `,
+    };
+  }
+
+  contactEmail(destinationUserEmail: string, contactEmailDto: ContactEmailDto) {
+    return {
+      to: destinationUserEmail,
+      subject: `WORKTIME, Contact support from a user: ${contactEmailDto.name}`,
+      html: `
+          <div>
+            <p>Sender name: ${contactEmailDto.name}!</p>
+            <p>Sender's email: ${contactEmailDto.email}</p>
+            <p>Date of entry: ${contactEmailDto.dateOfEntry}</p>
+            <br />
+            <p>Sender's letter:<p/>
+            <p>${contactEmailDto.message}</p>
           </div>
     `,
     };

@@ -22,6 +22,7 @@ import { StatisticsService } from 'src/statistics/statistics.service';
 import { CalendarsService } from 'src/calendars/calendars.service';
 import { ChangeSettingsDto } from './dto/change-settings.dto';
 import { TodosService } from 'src/todos/todos.service';
+import { ContactEmailDto } from './dto/contact-email.dto';
 
 @Injectable()
 export class UsersService {
@@ -439,6 +440,31 @@ export class UsersService {
       code: HttpStatus.OK,
       success: true,
       data: updatedUser,
+    };
+  }
+
+  async sendContactEmail(userId: Types.ObjectId, contactEmailDto: ContactEmailDto) {
+    if (!contactEmailDto) {
+      throw new HttpException(
+        {
+          status: 'error',
+          code: HttpStatus.BAD_REQUEST,
+          success: false,
+          message: 'Check correct entered data.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const user = await this.UserModel.findById(userId);
+    const mail = this.sendgridService.contactEmail(user.email, contactEmailDto);
+    await this.sendgridService.sendEmail(mail);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      success: true,
+      message: 'Message sent successfully.',
     };
   }
 }
