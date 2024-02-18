@@ -20,7 +20,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/', app, document);
+  SwaggerModule.setup('/docs', app, document);
 
   app.setGlobalPrefix('api/v1');
   app.use(cookieParser());
