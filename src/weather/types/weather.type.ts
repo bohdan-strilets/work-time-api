@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { LocationType } from './location.type';
 
 export class WeatherType {
   @ApiProperty()
@@ -17,8 +18,5 @@ export class WeatherType {
   minimumTemperature: number;
 
   @ApiProperty()
-  location: {
-    country: string;
-    city: string;
-  };
+  location: LocationType;
 }
