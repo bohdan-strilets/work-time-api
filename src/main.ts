@@ -6,7 +6,6 @@ import { CLIENT_URL_DEV, CLIENT_URL_PROD, API_URL } from './utilities/constants'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   const config = new DocumentBuilder()
     .setTitle('Worktime API')
     .setDescription('API for managing user registration, calendars, and statistics on WORKTIME.')
@@ -15,6 +14,8 @@ async function bootstrap() {
     .addTag('users', 'Methods for user profile management')
     .addTag('calendars', 'Methods for managing user calendars')
     .addTag('statistics', 'Methods for retrieving user statistics')
+    .addTag('todos', 'Method for getting each users to-do list.')
+    .addTag('weather', 'Method for obtaining weather forecast.')
     .addServer(`${API_URL}api/v1/`)
     .addBearerAuth()
     .build();
