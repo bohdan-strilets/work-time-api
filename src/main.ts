@@ -21,12 +21,13 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/docs', app, document, {
+  SwaggerModule.setup('/', app, document, {
     customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
     customJs: [
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
     ],
+    customfavIcon: 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/favicon-32x32.png',
   });
 
   app.setGlobalPrefix('api/v1');
